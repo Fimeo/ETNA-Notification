@@ -6,7 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -62,22 +64,29 @@ func main() {
 	viper.AddConfigPath(".")
 	err := viper.ReadInConfig()
 	if err != nil {
-		panic(fmt.Errorf("fatal error config file: %w \n", err))
+		panic(fmt.Errorf("fatal error config file: %w", err))
 	}
+
+	f := openLogFile()
+	defer f.Close()
+
+	log.SetOutput(f)
+
+	log.Print("[DEBUG] Up at ", time.Now())
 
 	s := discordBot()
 	c := sqlite()
 
 	cr := cron.New()
-	cr.AddFunc("@every 15m", func() {
-		fmt.Println("Execute : ", time.Now())
+	cr.AddFunc("@every 30m", func() {
+		log.Print("[DEBUG] Execute : ", time.Now())
 		information := retrieveInformation()
 		for _, info := range information {
 			if (notificationExist(c, Notification{
 				ExternalID: info.ID,
 				User:       viper.GetString("etna.user"),
 			})) {
-				fmt.Println("Notification already sent")
+				log.Print("[DEBUG] Notification already sent")
 			} else {
 				sendDiscordMessage(s, viper.GetString("discord.channel"), info.Message)
 				insertIntoDatabase(c, Notification{
@@ -100,7 +109,7 @@ func discordBot() *discordgo.Session {
 		panic(fmt.Sprintf("Bot error : %+v", err))
 	}
 	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
-		fmt.Println("Bot is ready")
+		log.Print("[DEBUG] Bot is ready")
 	})
 	return s
 }
@@ -127,7 +136,8 @@ func retrieveInformation() []*Information {
 
 	bodyJSON, err := json.Marshal(payload)
 	if err != nil {
-		panic("Cannot marshal the input payload")
+		log.Print("[ERROR] Marshal error")
+		return nil
 	}
 
 	headers := map[string]string{
@@ -140,7 +150,8 @@ func retrieveInformation() []*Information {
 	cookies, _ := exec(http.MethodPost, LoginURL, bodyJSON, headers, nil)
 
 	if len(cookies) == 0 {
-		panic("Connection failed, no cookie in response body")
+		log.Print("[ERROR] Connection failed, no cookie in response body")
+		return nil
 	}
 
 	_, resp := exec(http.MethodGet, fmt.Sprintf(InformationURL, viper.GetString("etna.user")), nil, nil, cookies[0])
@@ -148,7 +159,8 @@ func retrieveInformation() []*Information {
 	var information []*Information
 	err = json.Unmarshal(resp, &information)
 	if err != nil {
-		panic("Marshal error")
+		log.Print("[ERROR] UnMarshal error")
+		return nil
 	}
 
 	return information
@@ -157,10 +169,9 @@ func retrieveInformation() []*Information {
 func exec(method, url string, body []byte, headers map[string]string, cookie *http.Cookie) ([]*http.Cookie, []byte) {
 	client := &http.Client{}
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(body))
-
 	if err != nil {
-		fmt.Println(err)
-		panic("Error during request")
+		log.Print("[ERROR] Request error", err)
+		return nil, nil
 	}
 
 	for key, header := range headers {
@@ -173,15 +184,15 @@ func exec(method, url string, body []byte, headers map[string]string, cookie *ht
 
 	res, err := client.Do(req)
 	if err != nil {
-		fmt.Println(err)
-		panic("Error during request")
+		log.Print("[ERROR] Request error", err)
+		return nil, nil
 	}
 	defer res.Body.Close()
 
 	bodyJSON, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		fmt.Println(err)
-		panic("Error during request")
+		log.Print("[ERROR] Request error", err)
+		return nil, nil
 	}
 	fmt.Println(res.StatusCode, string(bodyJSON))
 
@@ -193,14 +204,13 @@ func sendDiscordMessage(s *discordgo.Session, channel, message string) {
 	if err != nil {
 		return
 	}
-	fmt.Println("Message sent at : ", messageSend.Timestamp)
+	log.Print("[DEBUG] Message sent at : ", messageSend.Timestamp)
 }
 
 func insertIntoDatabase(db *sql.DB, notif Notification) {
 	_, err := db.Exec("INSERT INTO notification VALUES(NULL,datetime(),?, ?);", notif.ExternalID, notif.User)
 	if err != nil {
-		fmt.Println(err)
-		panic("Cannot insert into database")
+		log.Print("[ERROR] Insert into database failed", err)
 	}
 }
 
@@ -216,4 +226,18 @@ func notificationExist(db *sql.DB, notif Notification) bool {
 		count++
 	}
 	return count != 0
+}
+
+func openLogFile() *os.File {
+	if _, err := os.Stat("log"); os.IsNotExist(err) {
+		err := os.Mkdir("log", os.ModePerm)
+		if err != nil {
+			return nil
+		}
+	}
+	f, err := os.OpenFile("log/debug.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
+	return f
 }
