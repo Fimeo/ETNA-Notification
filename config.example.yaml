@@ -1,0 +1,10 @@
+discord:
+  bot-token: "token"
+  channel: "channelID"
+
+sqlite:
+  file: "notification.db"
+
+etna:
+  user: "lefevr_a"
+  password: "PASSWORD"
