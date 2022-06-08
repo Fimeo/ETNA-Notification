@@ -11,6 +11,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/robfig/cron"
 	"github.com/spf13/viper"
 )
 
@@ -44,6 +45,12 @@ type Metas struct {
 	Promo        string `json:"promo,omitempty"`
 }
 
+type Notification struct {
+	ID         int
+	ExternalID int
+	User       string
+}
+
 const (
 	LoginURL       = "https://auth.etna-alternance.net/identity"
 	InformationURL = "https://intra-api.etna-alternance.net/students/%s/informations"
@@ -58,25 +65,52 @@ func main() {
 		panic(fmt.Errorf("fatal error config file: %w \n", err))
 	}
 
-	fmt.Println(viper.AllKeys())
-
-	information := retrieveInformation()
 	s := discordBot()
 	c := sqlite()
-	for _, info := range information {
-		if (notificationExist(c, notification{
-			ExternalID: info.ID,
-			User:       viper.GetString("etna.user"),
-		})) {
-			fmt.Println("Notification already sent")
-		} else {
-			sendDiscordMessage(s, viper.GetString("discord.channel"), info.Message)
-			insertIntoDatabase(c, notification{
+
+	cr := cron.New()
+	cr.AddFunc("@every 15m", func() {
+		fmt.Println("Execute : ", time.Now())
+		information := retrieveInformation()
+		for _, info := range information {
+			if (notificationExist(c, Notification{
 				ExternalID: info.ID,
 				User:       viper.GetString("etna.user"),
-			})
+			})) {
+				fmt.Println("Notification already sent")
+			} else {
+				sendDiscordMessage(s, viper.GetString("discord.channel"), info.Message)
+				insertIntoDatabase(c, Notification{
+					ExternalID: info.ID,
+					User:       viper.GetString("etna.user"),
+				})
+			}
 		}
+	})
+	cr.Start()
+
+	for {
+		time.Sleep(time.Second)
 	}
+}
+
+func discordBot() *discordgo.Session {
+	s, err := discordgo.New("Bot " + viper.GetString("discord.bot-token"))
+	if err != nil {
+		panic(fmt.Sprintf("Bot error : %+v", err))
+	}
+	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
+		fmt.Println("Bot is ready")
+	})
+	return s
+}
+
+func sqlite() *sql.DB {
+	db, err := sql.Open("sqlite3", viper.GetString("sqlite.file"))
+	if err != nil {
+		panic("Cannot open sql lite file")
+	}
+	return db
 }
 
 func retrieveInformation() []*Information {
@@ -154,48 +188,23 @@ func exec(method, url string, body []byte, headers map[string]string, cookie *ht
 	return res.Cookies(), bodyJSON
 }
 
-func discordBot() *discordgo.Session {
-	s, err := discordgo.New("Bot " + viper.GetString("discord.bot-token"))
-	if err != nil {
-		panic(fmt.Sprintf("Bot error : %+v", err))
-	}
-	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
-		fmt.Println("Bot is ready")
-	})
-	return s
-}
-
 func sendDiscordMessage(s *discordgo.Session, channel, message string) {
 	messageSend, err := s.ChannelMessageSend(channel, message)
 	if err != nil {
 		return
 	}
-	fmt.Println("Message envoyé at : ", messageSend.Timestamp)
+	fmt.Println("Message sent at : ", messageSend.Timestamp)
 }
 
-func sqlite() *sql.DB {
-	db, err := sql.Open("sqlite3", viper.GetString("sqlite.file"))
-	if err != nil {
-		panic("Cannot open sql lite file")
-	}
-	return db
-}
-
-type notification struct {
-	ID         int
-	ExternalID int
-	User       string
-}
-
-func insertIntoDatabase(db *sql.DB, notification notification) {
-	_, err := db.Exec("INSERT INTO notification VALUES(NULL,datetime(),?, ?);", notification.ExternalID, notification.User)
+func insertIntoDatabase(db *sql.DB, notif Notification) {
+	_, err := db.Exec("INSERT INTO notification VALUES(NULL,datetime(),?, ?);", notif.ExternalID, notif.User)
 	if err != nil {
 		fmt.Println(err)
 		panic("Cannot insert into database")
 	}
 }
 
-func notificationExist(db *sql.DB, notif notification) bool {
+func notificationExist(db *sql.DB, notif Notification) bool {
 	row, err := db.Query(
 		"SELECT * FROM notification WHERE external_id=? and user=?",
 		notif.ExternalID, notif.User)
