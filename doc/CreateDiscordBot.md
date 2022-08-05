@@ -6,7 +6,7 @@ First, you need to create a Discord account.
 
 Click on User Setting button to enable developer mode in your Discord account.
 
-![Settings](https://github.com/Fimeo/ETNA-Notification/doc/img/settings.png)
+![Settings](https://github.com/Fimeo/ETNA-Notification/blob/main/doc/img/settings.png)
 
 Then, click on Advanced and then enable Developer Mode.
 
@@ -18,7 +18,7 @@ Go to https://discord.com/developers/applications/, then create a new applicatio
 
 Click on Bot menu and then on Add Bot button.
 
-![CreateBot](https://github.com/Fimeo/ETNA-Notification/doc/img/createBot.png)
+![CreateBot](https://github.com/Fimeo/ETNA-Notification/blob/main/doc/img/createBot.png)
 
 
 Now go in OAuth2 menu and click on Copy button in order to get Client ID information.

@@ -6,7 +6,7 @@ What you need :
 
 * Sqlite3 installed
 * Go installed
-* A Discord Bot [Create a discord bot](https://github.com/Fimeo/ETNA-Notification/doc/CreateDiscordBot.md)
+* A Discord Bot [Create a discord bot](https://github.com/Fimeo/ETNA-Notification/blob/main/doc/CreateDiscordBot.md)
 * ETNA School account information
 
 Connect to sqlite :  `sqlite3 notification.db`
