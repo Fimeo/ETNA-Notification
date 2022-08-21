@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"log"
 
-	"etna-scrapping/internal/model/sqlite"
+	"etna-notification/internal/model/sqlite"
 )
 
 type SQLLiteService struct {
