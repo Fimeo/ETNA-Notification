@@ -19,7 +19,7 @@ func openLogFile() *os.File {
 	return f
 }
 
-func InitLogger() *os.File {
+func Logger() *os.File {
 	f := openLogFile()
 	log.SetOutput(f)
 

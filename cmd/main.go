@@ -11,9 +11,11 @@ import (
 	"github.com/robfig/cron"
 	"github.com/spf13/viper"
 
-	"etna-scrapping/internal/model"
-	"etna-scrapping/internal/model/sqlite"
-	"etna-scrapping/internal/service"
+	"etna-notification/internal/model"
+	"etna-notification/internal/model/sqlite"
+	"etna-notification/internal/service"
+	"etna-notification/internal/service/discord"
+	"etna-notification/internal/service/network"
 )
 
 const (
@@ -34,27 +36,27 @@ func loadConfig() {
 func main() {
 	loadConfig()
 
-	f := service.InitLogger()
+	f := service.Logger()
 	defer f.Close()
 
 	log.Print("[DEBUG] Up at ", time.Now())
 
-	s := service.DiscordConn(viper.GetString("discord.bot-token"))
+	dg := discord.DiscordConn(viper.GetString("discord.bot-token"))
 	c := service.SQLLiteConn(viper.GetString("sqlite.file"))
+
+	dg.OpenSocket()
 
 	cr := cron.New()
 	cr.AddFunc("@every 30m", func() {
-		execute(s, c)
+		execute(dg, c)
 	})
 	cr.Start()
-	execute(s, c)
+	execute(dg, c)
 
-	for {
-		time.Sleep(time.Second)
-	}
+	defer dg.Close()
 }
 
-func execute(s service.DiscordService, c service.SQLLiteService) {
+func execute(dg discord.Service, c service.SQLLiteService) {
 	log.Print("[DEBUG] Execute : ", time.Now())
 	information := retrieveInformation()
 	for _, info := range information {
@@ -64,7 +66,7 @@ func execute(s service.DiscordService, c service.SQLLiteService) {
 		})) {
 			log.Print("[DEBUG] Notification already sent")
 		} else {
-			s.SendDiscordMessage(viper.GetString("discord.channel"), info.Message)
+			dg.SendTextMessage(viper.GetString("discord.channel"), info.Message)
 			c.CreateNotification(sqlite.Notification{
 				ExternalID: info.ID,
 				User:       viper.GetString("etna.user"),
@@ -98,7 +100,7 @@ func retrieveInformation() []*model.Notification {
 		"Content-Type":    "application/json;charset=UTF-8",
 	}
 
-	cookies, _, err := service.Exec(http.MethodPost, LoginURL, bodyJSON, headers, nil)
+	cookies, _, err := network.Exec(http.MethodPost, LoginURL, bodyJSON, headers, nil)
 	if err != nil {
 		return nil
 	}
@@ -108,7 +110,7 @@ func retrieveInformation() []*model.Notification {
 		return nil
 	}
 
-	_, resp, err := service.Exec(
+	_, resp, err := network.Exec(
 		http.MethodGet,
 		fmt.Sprintf(InformationURL, viper.GetString("etna.user")),
 		nil,
