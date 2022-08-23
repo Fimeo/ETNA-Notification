@@ -1,5 +1,6 @@
 /.idea
 /log
-
-/config.yaml
+/config/rsa.private
+/config/rsa.pub
+/config/config.yaml
 notification.db

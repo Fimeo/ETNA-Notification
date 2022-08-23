@@ -9,13 +9,13 @@ What you need :
 * A Discord Bot [Create a discord bot](https://github.com/Fimeo/ETNA-Notification/blob/main/doc/CreateDiscordBot.md)
 * ETNA School account information
 
-Connect to sqlite :  `sqlite3 notification.db`
+Create sqlite database :  `sqlite3 notification.db`
 
 Then run migrations : `cat migration/*.sql | sqlite3 database.db`
 
 Copy and paste `config.override.yaml` as `config.yaml`
 
-Run go project : `go run main.go`
+Run go project : `go run cmd/main.go`
 
 A cron was launch and retrieves notifications from intranet every 30 minutes. If notification was already send to your channel, no new notification.
 Else a new discord message was written by the discord bot and allow you to stay informed from the latest news without perpetual connection.
