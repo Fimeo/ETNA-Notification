@@ -1,9 +1,9 @@
 package repository
 
 import (
-	"etna-notification/internal/infrastructure/mysql"
+	"etna-notification/internal/infrastructure/database"
 )
 
 type IUsersRepository interface {
-	GetEtnaUsers() ([]mysql.EtnaUser, error)
+	GetEtnaUsers() ([]database.EtnaUser, error)
 }

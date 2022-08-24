@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"etna-notification/internal/application"
+	"etna-notification/internal/infrastructure/database"
 	"etna-notification/internal/infrastructure/etna"
-	"etna-notification/internal/infrastructure/mysql"
 )
 
 // TODO : refacto this part into usecase and handle errors
@@ -27,12 +27,12 @@ func SendNewNotifications(dependencies application.Dependencies) {
 		notifications, _ := dependencies.Etna.RetrieveNotifications(cookie, user.Login)
 
 		for _, notification := range notifications {
-			if notified, _ := (dependencies.Notification.IsAlreadyNotified(mysql.Notification{
+			if notified, _ := (dependencies.Notification.IsAlreadyNotified(database.Notification{
 				ExternalID: notification.ID,
 				User:       user.Login,
 			})); !notified {
 				dependencies.Discord.SendTextMessage("1011372694241026098", notification.Message)
-				dependencies.Notification.CreateNotification(mysql.Notification{
+				dependencies.Notification.CreateNotification(database.Notification{
 					ExternalID: notification.ID,
 					User:       user.Login,
 				})

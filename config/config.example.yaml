@@ -1,5 +1,2 @@
 discord:
   bot-token: "token"
-
-sqlite:
-  file: "notification.db"

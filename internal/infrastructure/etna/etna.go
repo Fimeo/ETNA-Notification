@@ -3,7 +3,7 @@ package etna
 import (
 	"time"
 
-	"etna-notification/internal/infrastructure/mysql"
+	"etna-notification/internal/infrastructure/database"
 )
 
 type Authentication struct {
@@ -36,7 +36,7 @@ type Metas struct {
 	Promo        string `json:"promo,omitempty"`
 }
 
-func BuildAuthenticationFromUsers(users []mysql.EtnaUser) []Authentication {
+func BuildAuthenticationFromUsers(users []database.EtnaUser) []Authentication {
 	authentications := make([]Authentication, len(users))
 	for i, user := range users {
 		authentications[i] = Authentication{
