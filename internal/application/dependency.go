@@ -3,11 +3,9 @@ package application
 import (
 	"os"
 
-	"github.com/spf13/viper"
-
 	"etna-notification/internal/application/repository"
+	"etna-notification/internal/infrastructure/database"
 	"etna-notification/internal/infrastructure/logger"
-	"etna-notification/internal/infrastructure/mysql"
 )
 
 type Dependencies struct {
@@ -16,11 +14,12 @@ type Dependencies struct {
 	Etna         repository.IEtnaRepository
 	Users        repository.IUsersRepository
 	f            *os.File
+	db           *database.Service
 }
 
 func (d Dependencies) Close() {
 	d.Discord.Close()
-	d.Notification.Close()
+	d.db.Close()
 	d.f.Close()
 }
 
@@ -32,16 +31,23 @@ func LoadDependencies() Dependencies {
 		panic(err)
 	}
 
-	database, err := mysql.NewConnection(viper.GetString("sqlite.file"))
+	connection, err := database.NewPostgresConnection(
+		os.Getenv("POSTGRES_USER"),
+		os.Getenv("POSTGRES_PASSWORD"),
+		os.Getenv("POSTGRES_HOST"),
+		os.Getenv("POSTGRES_PORT"),
+		os.Getenv("POSTGRES_DB"),
+	)
 	if err != nil {
 		panic(err)
 	}
 
 	return Dependencies{
 		Discord:      dg,
-		Notification: database,
+		Notification: connection,
 		Etna:         repository.NewEtnaRepository(),
-		Users:        database,
+		Users:        connection,
 		f:            f,
+		db:           connection,
 	}
 }

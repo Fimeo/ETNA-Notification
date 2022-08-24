@@ -1,11 +1,14 @@
 package repository
 
 import (
-	"etna-notification/internal/infrastructure/mysql"
+	"etna-notification/internal/infrastructure/database"
 )
 
 type INotificationRepository interface {
-	CreateNotification(notification mysql.Notification) error
-	IsAlreadyNotified(notification mysql.Notification) (bool, error)
+	CreateNotification(notification database.Notification) error
+	IsAlreadyNotified(notification database.Notification) (bool, error)
+}
+
+type Database interface {
 	Close()
 }
