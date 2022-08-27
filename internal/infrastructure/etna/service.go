@@ -47,7 +47,7 @@ func (s Service) Login(authentication Authentication) (*http.Cookie, error) {
 func (s Service) RetrieveNotifications(cookie *http.Cookie, username string) ([]Notification, error) {
 	resp, err := network.Exec(
 		http.MethodGet,
-		fmt.Sprintf(informationURL, username), // viper.GetString("etna.user")
+		fmt.Sprintf(informationURL, username),
 		nil,
 		nil,
 		[]*http.Cookie{cookie})

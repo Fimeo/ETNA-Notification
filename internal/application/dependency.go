@@ -5,7 +5,6 @@ import (
 
 	"etna-notification/internal/application/repository"
 	"etna-notification/internal/infrastructure/database"
-	"etna-notification/internal/infrastructure/logger"
 )
 
 type Dependencies struct {
@@ -13,19 +12,15 @@ type Dependencies struct {
 	Notification repository.INotificationRepository
 	Etna         repository.IEtnaRepository
 	Users        repository.IUsersRepository
-	f            *os.File
 	db           *database.Service
 }
 
 func (d Dependencies) Close() {
 	d.Discord.Close()
 	d.db.Close()
-	d.f.Close()
 }
 
 func LoadDependencies() Dependencies {
-	f := logger.Logger()
-
 	dg, err := repository.NewDiscordRepository()
 	if err != nil {
 		panic(err)
@@ -47,7 +42,6 @@ func LoadDependencies() Dependencies {
 		Notification: connection,
 		Etna:         repository.NewEtnaRepository(),
 		Users:        connection,
-		f:            f,
 		db:           connection,
 	}
 }

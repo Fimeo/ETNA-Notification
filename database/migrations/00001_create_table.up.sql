@@ -1,6 +1,6 @@
 CREATE TABLE notification
 (
-    id          INTEGER NOT NULL PRIMARY KEY,
+    id          SERIAL PRIMARY KEY,
     time        DATE NOT NULL,
     external_id INTEGER NOT NULL,
     "user"      VARCHAR NOT NULL
@@ -8,7 +8,7 @@ CREATE TABLE notification
 
 CREATE TABLE users
 (
-    id       INTEGER NOT NULL PRIMARY KEY,
+    id       SERIAL PRIMARY KEY,
     time     DATE NOT NULL,
     user_id  INTEGER NOT NULL,
     channelID VARCHAR NOT NULL,

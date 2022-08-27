@@ -8,7 +8,10 @@ COPY go.sum ./
 RUN go mod download
 
 # Move files
-COPY . .
+COPY cmd cmd
+COPY config config
+COPY internal internal
+COPY .env .env
 
 # Build
 RUN go build -o bin /app/cmd/main.go
