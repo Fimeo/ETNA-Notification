@@ -3,7 +3,7 @@ module etna-notification
 go 1.18
 
 require (
-	github.com/bwmarrin/discordgo v0.26.0
+	github.com/bwmarrin/discordgo v0.26.1
 	github.com/lib/pq v1.10.6
 	github.com/maxatome/go-testdeep v1.12.0
 	github.com/robfig/cron v1.2.0
