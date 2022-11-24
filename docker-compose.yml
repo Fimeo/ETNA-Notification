@@ -8,40 +8,41 @@ services:
       - POSTGRES_USER=$POSTGRES_USER
       - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
       - POSTGRES_DB=$POSTGRES_DB
-    volumes:
-      - ./data/postgresql:/var/lib/postgresql/data
     ports:
-     - "5432:5432"
+      - "5444:5432"
+     # Uncomment for data persistence
+#    volumes:
+#      - ./data/postgresql:/var/lib/postgresql/data
 
-  migrate:
-    image: migrate/migrate
-    networks: [ app ]
-    environment:
-      - POSTGRES_USER=$POSTGRES_USER
-      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
-      - POSTGRES_DB=$POSTGRES_DB
-    volumes:
-      - ./database/migrations:/migrations
-    command: ["-path", "/migrations", "-database",  "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres:5432/$POSTGRES_DB?sslmode=disable", "up"]
-    links:
-      - postgres
-    depends_on:
-      - postgres
-
-  app:
-    build: .
-    restart: always
-    networks: [ app ]
-    depends_on:
-      - postgres
-    links:
-      - postgres
-    environment:
-      - POSTGRES_USER=$POSTGRES_USER
-      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
-      - POSTGRES_DB=$POSTGRES_DB
-      - POSTGRES_HOST=$POSTGRES_HOST
-      - POSTGRES_PORT=$POSTGRES_PORT
+#  migrate:
+#    image: migrate/migrate
+#    networks: [ app ]
+#    environment:
+#      - POSTGRES_USER=$POSTGRES_USER
+#      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+#      - POSTGRES_DB=$POSTGRES_DB
+#    volumes:
+#      - ./database/migrations:/migrations
+#    command: ["-path", "/migrations", "-database",  "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres:5432/$POSTGRES_DB?sslmode=disable", "up"]
+#    links:
+#      - postgres
+#    depends_on:
+#      - postgres
+#
+#  app:
+#    build: .
+#    restart: always
+#    networks: [ app ]
+#    depends_on:
+#      - postgres
+#    links:
+#      - postgres
+#    environment:
+#      - POSTGRES_USER=$POSTGRES_USER
+#      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+#      - POSTGRES_DB=$POSTGRES_DB
+#      - POSTGRES_HOST=$POSTGRES_HOST
+#      - POSTGRES_PORT=$POSTGRES_PORT
 
 networks:
   app:
