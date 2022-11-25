@@ -29,7 +29,6 @@ func main() {
 		fx.Invoke(controller.StartPushNotificationCron),
 		fx.Invoke(controller.AutoMigrateModels),
 	).Run()
-	fx.OnStop(controller.CloseConnection)
 }
 
 func loadConfig() {

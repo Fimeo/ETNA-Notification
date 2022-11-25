@@ -1,9 +1,13 @@
 package service
 
 import (
-	"github.com/bwmarrin/discordgo"
+	"context"
 	"log"
 	"os"
+
+	"go.uber.org/fx"
+
+	"github.com/bwmarrin/discordgo"
 )
 
 // DiscordService is a proxy using discord-go package.
@@ -19,7 +23,8 @@ type IDiscordService interface {
 }
 
 // NewDiscordService init connection with discord using discord-go package. A web socket is open.
-func NewDiscordService() IDiscordService {
+// Use the fx lifecycle to close the web socket connection
+func NewDiscordService(lc fx.Lifecycle) IDiscordService {
 	dg, err := discordgo.New("Bot " + os.Getenv("DISCORD_BOT_TOKEN"))
 	if err != nil {
 		log.Panicf("[ERROR] Failed to init discord connection using token : %+v", err)
@@ -29,6 +34,11 @@ func NewDiscordService() IDiscordService {
 	if err != nil {
 		log.Panicf("[ERROR] Failed to open discord web socket : %+v", err)
 	}
+	lc.Append(fx.Hook{
+		OnStop: func(ctx context.Context) error {
+			return dg.Close()
+		},
+	})
 
 	return &discordService{DG: dg}
 }

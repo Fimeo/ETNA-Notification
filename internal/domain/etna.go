@@ -43,7 +43,7 @@ func BuildAuthenticationFromUser(user *User) *EtnaAuthenticationInput {
 		Groups:         []string{"student"},
 		LoginDate:      time.Now().Format("2006-01-02 15-04-05"),
 		FirstConnexion: false,
-		Password:       user.Password, // TODO : hash password
+		Password:       user.Password, // TODO : decrypt password
 	}
 }
 
@@ -52,4 +52,8 @@ func BuildNotificationFromEtnaNotificationAndUser(notification *EtnaNotification
 		ExternalID: notification.ID,
 		User:       user,
 	}
+}
+
+func BuildMessageFromEtnaNotification(notification *EtnaNotification) string {
+	return ":bell: " + notification.Message
 }

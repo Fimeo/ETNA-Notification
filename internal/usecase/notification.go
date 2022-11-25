@@ -23,10 +23,10 @@ func SendPushNotificationForUser(
 	}
 
 	for _, notification := range notifications {
+		// TODO : use a single database request
 		if notified, _ := notificationRep.IsNotified(domain.BuildNotificationFromEtnaNotificationAndUser(notification, user)); !notified {
 			// Send notification is this case
-			// TODO : factory to build formatted message notification
-			_, err := discordS.SendTextMessage("1011372694241026098", notification.Message)
+			_, err := discordS.SendTextMessage(user.ChannelID, domain.BuildMessageFromEtnaNotification(notification))
 			if err != nil {
 				log.Printf("[ERROR] Error when trying to send discord notification to user %+v and notification %+v", user, notification)
 				continue
