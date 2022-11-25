@@ -55,5 +55,5 @@ func BuildNotificationFromEtnaNotificationAndUser(notification *EtnaNotification
 }
 
 func BuildMessageFromEtnaNotification(notification *EtnaNotification) string {
-	return ":bell: " + notification.Message
+	return ":bell: " + "[" + notification.Type + "]" + notification.Message
 }
