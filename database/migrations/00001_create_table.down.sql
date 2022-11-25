@@ -1,2 +1,2 @@
-DROP TABLE notification;
-DROP TABLE users;
+drop table notifications;
+drop table users;

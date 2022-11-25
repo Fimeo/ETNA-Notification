@@ -10,8 +10,6 @@ services:
       - POSTGRES_DB=$POSTGRES_DB
     volumes:
       - ./data/postgresql:/var/lib/postgresql/data
-    ports:
-     - "5432:5432"
 
   migrate:
     image: migrate/migrate
@@ -42,6 +40,8 @@ services:
       - POSTGRES_DB=$POSTGRES_DB
       - POSTGRES_HOST=$POSTGRES_HOST
       - POSTGRES_PORT=$POSTGRES_PORT
+      - DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN
+      - DUMP_REQUEST=$DUMP_REQUEST
 
 networks:
   app:

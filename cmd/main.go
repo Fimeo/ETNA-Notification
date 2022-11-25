@@ -1,35 +1,39 @@
 package main
 
 import (
-	"fmt"
+	"log"
 
-	"github.com/robfig/cron"
-	"github.com/spf13/viper"
+	"go.uber.org/fx"
 
-	"etna-notification/internal/application"
-	"etna-notification/internal/infrastructure/handler"
+	"github.com/joho/godotenv"
+
+	"etna-notification/internal/controller"
+	"etna-notification/internal/database"
+	"etna-notification/internal/repository"
+	"etna-notification/internal/service"
 )
 
 func main() {
-	loadConfig()
-	dependencies := application.LoadDependencies()
-	defer dependencies.Close()
-
-	cr := cron.New()
-	cr.AddFunc("@every 30m", func() {
-		handler.SendNewNotifications(dependencies)
-	})
-	cr.Start()
-	handler.SendNewNotifications(dependencies)
+	fx.New(
+		fx.Invoke(loadConfig),
+		fx.Invoke(service.NewLoggerService),
+		fx.Provide(
+			service.NewClient,
+			service.NewDiscordService,
+			service.NewEtnaWebservice,
+			repository.NewUserRepository,
+			repository.NewNotificationRepository,
+			controller.NewEtnaNotificationController,
+			database.NewDatabaseConnection,
+		),
+		fx.Invoke(controller.StartPushNotificationCron),
+		fx.Invoke(controller.AutoMigrateModels),
+	).Run()
 }
 
 func loadConfig() {
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath("./config")
-	viper.AutomaticEnv()
-	err := viper.ReadInConfig()
+	err := godotenv.Load()
 	if err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", err))
+		log.Fatal("Error loading .env file")
 	}
 }

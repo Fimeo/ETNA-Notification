@@ -3,6 +3,6 @@
 /config/rsa.private
 /config/rsa.pub
 /config/config.yaml
-notification.db
 .env
-/data
+bin
+data/
