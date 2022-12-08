@@ -8,7 +8,30 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
+	"fmt"
+	"io/ioutil"
+	"os"
 )
+
+type Security struct {
+	PublicKey  *rsa.PublicKey
+	PrivateKey *rsa.PrivateKey
+}
+
+func NewSecurity() Security {
+	public, err := RsaPublicKeyFromFile(os.Getenv("PUBLIC_KEY"))
+	if err != nil {
+		panic(err)
+	}
+	private, err := RsaPrivateKeyFromFile(os.Getenv("PRIVATE_KEY"))
+	if err != nil {
+		panic(err)
+	}
+	return Security{
+		PublicKey:  public,
+		PrivateKey: private,
+	}
+}
 
 func GenerateRsaKeyPair() (*rsa.PrivateKey, *rsa.PublicKey) {
 	privateKey, _ := rsa.GenerateKey(rand.Reader, 4096)
@@ -24,6 +47,28 @@ func ExportRsaPrivateKeyAsPemStr(privateKey *rsa.PrivateKey) string {
 		},
 	)
 	return string(privateKeyPem)
+}
+
+func RsaPrivateKeyFromFile(path string) (*rsa.PrivateKey, error) {
+	if _, err := os.Stat(path); err != nil {
+		return nil, errors.New(fmt.Sprintf("file not found : %+v", err))
+	}
+	content, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("cannot read input file : %+v", err))
+	}
+	return ParseRsaPrivateKeyFromPemStr(string(content))
+}
+
+func RsaPublicKeyFromFile(path string) (*rsa.PublicKey, error) {
+	if _, err := os.Stat(path); err != nil {
+		return nil, errors.New(fmt.Sprintf("file not found : %+v", err))
+	}
+	content, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("cannot read input file : %+v", err))
+	}
+	return ParseRsaPublicKeyFromPemStr(string(content))
 }
 
 func ParseRsaPrivateKeyFromPemStr(privatePEM string) (*rsa.PrivateKey, error) {

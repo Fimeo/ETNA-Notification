@@ -9,7 +9,6 @@ RUN go mod download
 
 # Move files
 COPY cmd cmd
-COPY config config
 COPY internal internal
 COPY .env .env
 

@@ -11,6 +11,7 @@ import (
 	"etna-notification/internal/database"
 	"etna-notification/internal/repository"
 	"etna-notification/internal/service"
+	"etna-notification/pkg/security"
 )
 
 func main() {
@@ -19,6 +20,7 @@ func main() {
 		fx.Invoke(service.NewLoggerService),
 		fx.Provide(
 			service.NewClient,
+			security.NewSecurity,
 			service.NewDiscordService,
 			service.NewEtnaWebservice,
 			repository.NewUserRepository,
