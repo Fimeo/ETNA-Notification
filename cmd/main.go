@@ -26,9 +26,11 @@ func main() {
 			repository.NewUserRepository,
 			repository.NewNotificationRepository,
 			controller.NewEtnaNotificationController,
+			controller.NewRegisterController,
 			database.NewDatabaseConnection,
 		),
 		fx.Invoke(controller.StartPushNotificationCron),
+		fx.Invoke(controller.Register),
 		fx.Invoke(controller.AutoMigrateModels),
 	).Run()
 }

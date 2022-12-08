@@ -2,9 +2,9 @@ create table users
 (
     id         bigserial
         primary key,
-    user_id    bigint,
     time       timestamp with time zone,
     channel_id text,
+    discord_account text,
     login      text,
     password   text
 );

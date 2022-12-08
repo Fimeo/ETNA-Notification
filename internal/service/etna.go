@@ -12,7 +12,7 @@ import (
 
 const (
 	loginURL       = "https://auth.etna-alternance.net/identity"
-	informationURL = "https://intra-api.etna-alternance.net/students/%s/informations"
+	informationURL = "https://intra-api.etna-alternance.net/students/%s/informations/archived"
 )
 
 // etnaWebService is a service that retrieves data from etna web services.
@@ -23,7 +23,7 @@ type etnaWebService struct {
 }
 
 type IEtnaWebService interface {
-	LoginCookie(authentication *domain.EtnaAuthenticationInput) (*http.Cookie, error)
+	LoginCookie(authentication *domain.User) (*http.Cookie, error)
 	RetrievePendingNotifications(authenticationCookie *http.Cookie, username string) (notifications []*domain.EtnaNotification, err error)
 	RetrieveAllNotifications(authenticationCookie *http.Cookie, username string) (notifications []*domain.EtnaNotification, err error)
 }
@@ -34,7 +34,7 @@ func NewEtnaWebservice(client *req.Client) IEtnaWebService {
 	}
 }
 
-func (s *etnaWebService) LoginCookie(authentication *domain.EtnaAuthenticationInput) (*http.Cookie, error) {
+func (s *etnaWebService) LoginCookie(authentication *domain.User) (*http.Cookie, error) {
 	response, err := s.C.R().
 		SetBody(authentication).
 		Post(loginURL)

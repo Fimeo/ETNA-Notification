@@ -2,6 +2,8 @@ package repository
 
 import (
 	"encoding/base64"
+	"errors"
+	"gorm.io/gorm"
 
 	"etna-notification/internal/database"
 	"etna-notification/internal/domain"
@@ -9,8 +11,11 @@ import (
 )
 
 type IUserRepository interface {
-	Save(user *domain.User) (*domain.User, error)
+	Save(*domain.User) (*domain.User, error)
+	Update(user *domain.User) (*domain.User, error)
 	FindAll() ([]*domain.User, error)
+	FindByDiscordName(string) (*domain.User, error)
+	FindByLogin(string) (*domain.User, error)
 	Migrate() error
 }
 
@@ -38,6 +43,10 @@ func (ur *userRepository) Save(user *domain.User) (*domain.User, error) {
 	return user, ur.DB.Create(user).Error
 }
 
+func (ur *userRepository) Update(user *domain.User) (*domain.User, error) {
+	return user, ur.DB.Updates(user).Error
+}
+
 // FindAll user retrieve all account registered to send notifications. Password are decrypted using rsa private key
 // because we need to make authentication with clea password. The password was stored in base64, we need to decode before
 // use decrypt.
@@ -56,6 +65,27 @@ func (ur *userRepository) FindAll() ([]*domain.User, error) {
 		user.Password = string(decryptPassword)
 	}
 	return users, err
+}
+
+func (ur *userRepository) FindByDiscordName(discordAccountName string) (*domain.User, error) {
+	var user *domain.User
+	err := ur.DB.First(&user, "discord_account = ?", discordAccountName).Error
+	if err != nil {
+		return nil, errors.New("user is not registered, please make setup before")
+	}
+	return user, nil
+}
+
+func (ur *userRepository) FindByLogin(login string) (*domain.User, error) {
+	var user *domain.User
+	err := ur.DB.First(&user, "login = ?", login).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, errors.New("error during request user by login")
+	}
+	return user, nil
 }
 
 func (ur *userRepository) Migrate() error {

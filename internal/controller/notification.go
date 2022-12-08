@@ -62,10 +62,18 @@ func (c *etnaNotificationController) SendPushNotification() error {
 	}
 
 	for _, user := range users {
-		err := usecase.SendPushNotificationForUser(user, c.notificationRepository, c.etnaWebService, c.discordService)
-		if err != nil {
-			return err
+		if user.ChannelID == "" {
+			continue
 		}
+		user := user
+		go func() {
+			err := usecase.SendPushNotificationForUser(user, c.notificationRepository, c.etnaWebService, c.discordService)
+			if err != nil {
+				if err != nil {
+					log.Printf("[ERROR] Something happens during cron push notification: %+v", err)
+				}
+			}
+		}()
 	}
 	log.Print("[DEBUG] SendPushNotification end at : ", time.Now())
 	return nil

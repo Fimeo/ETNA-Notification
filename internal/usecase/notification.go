@@ -13,7 +13,7 @@ func SendPushNotificationForUser(
 	notificationRep repository.INotificationRepository,
 	etnaWS service.IEtnaWebService,
 	discordS service.IDiscordService) error {
-	authenticationCookie, err := etnaWS.LoginCookie(domain.BuildAuthenticationFromUser(user))
+	authenticationCookie, err := etnaWS.LoginCookie(user)
 	if err != nil {
 		return err
 	}
