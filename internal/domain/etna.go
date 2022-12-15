@@ -4,16 +4,9 @@ import (
 	"time"
 )
 
-type EtnaAuthenticationInput struct {
-	ID             int      `json:"id"`
-	Login          string   `json:"login"`
-	Email          string   `json:"email"`
-	LogAs          bool     `json:"logas"`
-	Groups         []string `json:"groups"`
-	LoginDate      string   `json:"login_date"`
-	FirstConnexion bool     `json:"firstconnexion"`
-	Password       string   `json:"password"`
-}
+const (
+	Notice = "notice"
+)
 
 type EtnaNotification struct {
 	ID                    int         `json:"id"`
@@ -34,19 +27,6 @@ type EtnaNotificationMetas struct {
 	Promo        string `json:"promo,omitempty"`
 }
 
-func BuildAuthenticationFromUser(user *User) *EtnaAuthenticationInput {
-	return &EtnaAuthenticationInput{
-		ID:             user.UserID,
-		Login:          user.Login,
-		Email:          user.Login + "@etna-alternance.net",
-		LogAs:          false,
-		Groups:         []string{"student"},
-		LoginDate:      time.Now().Format("2006-01-02 15-04-05"),
-		FirstConnexion: false,
-		Password:       user.Password,
-	}
-}
-
 func BuildNotificationFromEtnaNotificationAndUser(notification *EtnaNotification, user *User) *Notification {
 	return &Notification{
 		ExternalID: notification.ID,
@@ -55,5 +35,8 @@ func BuildNotificationFromEtnaNotificationAndUser(notification *EtnaNotification
 }
 
 func BuildMessageFromEtnaNotification(notification *EtnaNotification) string {
-	return ":bell: " + "[" + notification.Type + "]" + notification.Message
+	if notification.Type == Notice {
+		return ":bell: " + notification.Message
+	}
+	return ":pushpin: " + notification.Message
 }

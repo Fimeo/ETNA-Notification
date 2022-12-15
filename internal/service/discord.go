@@ -2,12 +2,19 @@ package service
 
 import (
 	"context"
+	"go.uber.org/fx"
 	"log"
 	"os"
 
-	"go.uber.org/fx"
-
 	"github.com/bwmarrin/discordgo"
+
+	"etna-notification/internal/domain"
+)
+
+const (
+	NotificationCategoryID = "NOTIFICATION_CATEGORY_ID"
+	SystemErrorChannelID   = "SYSTEM_ERROR_CHANNEL"
+	ConnectChannelID       = "CONNECT_CHANNEL"
 )
 
 // DiscordService is a proxy using discord-go package.
@@ -16,9 +23,13 @@ type discordService struct {
 }
 
 type IDiscordService interface {
+	Session() *discordgo.Session
 	SendTextMessage(channelID, message string) (*discordgo.Message, error)
-	CreateUserNotificationTextChannel(username string) (*discordgo.Channel, error)
+	SendTextMessageReply(content string, message *discordgo.Message)
+	CreateUserNotificationTextChannel(username *domain.User, guildID string) (*discordgo.Channel, error)
+	ChannelNewReadingMember(memberID, channelID string) (*discordgo.Channel, error)
 	GetChannel(channelID string) (*discordgo.Channel, error)
+	CreateInvitation(channelID string) (*discordgo.Invite, error)
 	CloseConnection()
 }
 
@@ -43,6 +54,11 @@ func NewDiscordService(lc fx.Lifecycle) IDiscordService {
 	return &discordService{DG: dg}
 }
 
+// Session returns the discordgo.Session
+func (dg *discordService) Session() *discordgo.Session {
+	return dg.DG
+}
+
 func (dg *discordService) SendTextMessage(channelID, message string) (*discordgo.Message, error) {
 	messageSend, err := dg.DG.ChannelMessageSend(channelID, message)
 	if err != nil {
@@ -54,13 +70,12 @@ func (dg *discordService) SendTextMessage(channelID, message string) (*discordgo
 	return messageSend, nil
 }
 
-func (dg *discordService) CreateUserNotificationTextChannel(username string) (*discordgo.Channel, error) {
-	guildID := "984028659956473867" // The server guild ID
+func (dg *discordService) CreateUserNotificationTextChannel(user *domain.User, guildID string) (*discordgo.Channel, error) {
 	channelCreate, err := dg.DG.GuildChannelCreateComplex(guildID, discordgo.GuildChannelCreateData{
-		Name:     username + "-notification",
+		Name:     user.Login,
 		Type:     discordgo.ChannelTypeGuildText,
-		Position: 2,
-		ParentID: "984028659956473868", // The category Notification ID
+		Position: 1,
+		ParentID: os.Getenv(NotificationCategoryID), // The category Notification ID
 	})
 	if err != nil {
 		log.Printf("[ERROR] Failed to create guild channel : %+v", err)
@@ -104,6 +119,32 @@ func (dg *discordService) ChannelNewReadingMember(memberID, channelID string) (*
 
 	log.Print("[DEBUG] New member added to channel : ", channelUpdated.Name)
 	return channelUpdated, nil
+}
+
+func (dg *discordService) CreateInvitation(channelID string) (*discordgo.Invite, error) {
+	invitation, err := dg.DG.ChannelInviteCreate(channelID, discordgo.Invite{
+		MaxAge:    86400, // 1 day
+		MaxUses:   1,
+		Temporary: false,
+	})
+	if err != nil {
+		log.Printf("[ERROR] Failed to create invitation : %+v", err)
+		return nil, err
+	}
+	log.Print("[DEBUG] New invitation created : ", invitation.CreatedAt)
+	return invitation, nil
+}
+
+func (dg *discordService) SendTextMessageReply(content string, message *discordgo.Message) {
+	_, err := dg.DG.ChannelMessageSendReply(message.ChannelID, content, &discordgo.MessageReference{
+		MessageID: message.ID,
+		ChannelID: message.ChannelID,
+		GuildID:   message.GuildID,
+	})
+	if err != nil {
+		log.Printf("[ERROR] message reply has failed with content : %s %+v %+v", content, message, err)
+		return
+	}
 }
 
 func (dg *discordService) CloseConnection() {

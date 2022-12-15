@@ -1,16 +1,23 @@
 create table users
 (
-    id         bigserial
+    id              bigserial
         primary key,
-    user_id    bigint,
-    time       timestamp with time zone,
-    channel_id text,
-    login      text,
-    password   text
+    created_at      timestamp with time zone,
+    updated_at      timestamp with time zone,
+    deleted_at      timestamp with time zone,
+    time            timestamp with time zone,
+    channel_id      text,
+    discord_account text,
+    login           text,
+    password        text,
+    status          text
 );
 
 alter table users
     owner to postgres;
+
+create index idx_users_deleted_at
+    on users (deleted_at);
 
 create table notifications
 (
@@ -30,4 +37,3 @@ alter table notifications
 
 create index idx_notifications_deleted_at
     on notifications (deleted_at);
-

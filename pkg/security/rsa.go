@@ -18,12 +18,17 @@ type Security struct {
 	PrivateKey *rsa.PrivateKey
 }
 
+const (
+	RsaPublicKey  = "RSA_PUBLIC_KEY"
+	RsaPrivateKey = "RSA_PRIVATE_KEY"
+)
+
 func NewSecurity() Security {
-	public, err := RsaPublicKeyFromFile(os.Getenv("PUBLIC_KEY"))
+	public, err := RsaPublicKeyFromFile(os.Getenv(RsaPublicKey))
 	if err != nil {
 		panic(err)
 	}
-	private, err := RsaPrivateKeyFromFile(os.Getenv("PRIVATE_KEY"))
+	private, err := RsaPrivateKeyFromFile(os.Getenv(RsaPrivateKey))
 	if err != nil {
 		panic(err)
 	}

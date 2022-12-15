@@ -12,14 +12,14 @@ Then, click on Advanced and then enable Developer Mode.
 
 **Create a Discord application** :
 
-Go to https://discord.com/developers/applications/, then create a new application with "New Application" button, and then name the app and click on "Create" button.
+Go to https://discord.com/developers/applications/, then create a new application with "New Application" button, and
+then name the app and click on "Create" button.
 
 **Create a Bot** :
 
 Click on Bot menu and then on Add Bot button.
 
 ![CreateBot](https://github.com/Fimeo/ETNA-Notification/blob/main/doc/img/createBot.png)
-
 
 Now go in OAuth2 menu and click on Copy button in order to get Client ID information.
 
@@ -34,6 +34,5 @@ When we go to this URL, a connection window appears to link the bot to a discord
 
 There is one last thing to do so that our Go application can connect to the Discord server: we need a token.
 
-For that, go back in the Discord application developers website, then click on Bot menu and then click on Copy button in order to copy the token (and save it somewhere).
-
-It's time for the show !
+For that, go back in the Discord application developers website, then click on Bot menu and then click on Copy button in
+order to copy the token (and save it somewhere).

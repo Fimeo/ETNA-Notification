@@ -11,6 +11,7 @@ RUN go mod download
 COPY cmd cmd
 COPY internal internal
 COPY .env .env
+COPY pkg pkg
 
 # Build
 RUN go build -o bin /app/cmd/main.go

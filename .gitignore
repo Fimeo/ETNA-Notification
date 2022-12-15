@@ -1,8 +1,6 @@
 /.idea
 /log
-/config/rsa.private
-/config/rsa.pub
-/config/config.yaml
 .env
 bin
 data/
+.ssh/
