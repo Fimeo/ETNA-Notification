@@ -4,6 +4,10 @@ import (
 	"time"
 )
 
+const (
+	Notice = "notice"
+)
+
 type EtnaNotification struct {
 	ID                    int         `json:"id"`
 	Message               string      `json:"message"`
@@ -31,5 +35,8 @@ func BuildNotificationFromEtnaNotificationAndUser(notification *EtnaNotification
 }
 
 func BuildMessageFromEtnaNotification(notification *EtnaNotification) string {
-	return ":bell: " + "[" + notification.Type + "]" + notification.Message
+	if notification.Type == Notice {
+		return ":bell: " + notification.Message
+	}
+	return ":pushpin: " + notification.Message
 }

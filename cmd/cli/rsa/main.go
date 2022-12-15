@@ -18,13 +18,13 @@ func main() {
 	privatePem := security.ExportRsaPrivateKeyAsPemStr(private)
 	pubPem, _ := security.ExportRsaPublicKeyAsPemStr(pub)
 
-	pubFile, err := os.Create("config/rsa.pub")
+	pubFile, err := os.Create(".ssh/rsa.pub")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer pubFile.Close()
 
-	privateFile, err := os.Create("config/rsa.private")
+	privateFile, err := os.Create(".ssh/rsa.private")
 	if err != nil {
 		log.Fatal(err)
 	}

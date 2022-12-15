@@ -12,7 +12,7 @@ import (
 
 const (
 	loginURL       = "https://auth.etna-alternance.net/identity"
-	informationURL = "https://intra-api.etna-alternance.net/students/%s/informations/archived"
+	informationURL = "https://intra-api.etna-alternance.net/students/%s/informations"
 )
 
 // etnaWebService is a service that retrieves data from etna web services.
@@ -23,8 +23,8 @@ type etnaWebService struct {
 }
 
 type IEtnaWebService interface {
-	LoginCookie(authentication *domain.User) (*http.Cookie, error)
-	RetrievePendingNotifications(authenticationCookie *http.Cookie, username string) (notifications []*domain.EtnaNotification, err error)
+	LoginCookie(login, password string) (*http.Cookie, error)
+	RetrieveUnreadNotifications(authenticationCookie *http.Cookie, username string) (notifications []*domain.EtnaNotification, err error)
 	RetrieveAllNotifications(authenticationCookie *http.Cookie, username string) (notifications []*domain.EtnaNotification, err error)
 }
 
@@ -34,9 +34,16 @@ func NewEtnaWebservice(client *req.Client) IEtnaWebService {
 	}
 }
 
-func (s *etnaWebService) LoginCookie(authentication *domain.User) (*http.Cookie, error) {
+func (s *etnaWebService) LoginCookie(login, password string) (*http.Cookie, error) {
+	type body struct {
+		Login    string `json:"login"`
+		Password string `json:"password"`
+	}
 	response, err := s.C.R().
-		SetBody(authentication).
+		SetBody(body{
+			Login:    login,
+			Password: password,
+		}).
 		Post(loginURL)
 	if err != nil {
 		return nil, err
@@ -54,7 +61,7 @@ func (s *etnaWebService) LoginCookie(authentication *domain.User) (*http.Cookie,
 	return nil, errors.New("[ERROR] Connection failed, authenticator cookie not found in response")
 }
 
-func (s *etnaWebService) RetrievePendingNotifications(authenticationCookie *http.Cookie, username string) (notifications []*domain.EtnaNotification, err error) {
+func (s *etnaWebService) RetrieveUnreadNotifications(authenticationCookie *http.Cookie, username string) (notifications []*domain.EtnaNotification, err error) {
 	_, err = s.C.R().
 		SetResult(&notifications).
 		SetCookies(authenticationCookie).

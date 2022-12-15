@@ -10,13 +10,13 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func NewDatabaseConnection() Client {
+func InitDatabaseConnection() Client {
 	connection, err := postgresConnection(
-		os.Getenv("POSTGRES_USER"),
-		os.Getenv("POSTGRES_PASSWORD"),
-		os.Getenv("POSTGRES_HOST"),
-		os.Getenv("POSTGRES_PORT"),
-		os.Getenv("POSTGRES_DB"),
+		os.Getenv(ConnectionUser),
+		os.Getenv(ConnectionPassword),
+		os.Getenv(ConnectionHost),
+		os.Getenv(ConnectionPort),
+		os.Getenv(ConnectionDatabase),
 	)
 	if err != nil {
 		panic(err)
@@ -41,7 +41,6 @@ func postgresConnection(username, password, host, port, database string) (*gorm.
 	}
 	err = sqlDB.Ping()
 	if err != nil {
-		// TODO : add cron on to ping, if connection failed, send discord message in special channel
 		log.Printf("[ERROR] Ping database failed : %+v", err)
 		return nil, err
 	}

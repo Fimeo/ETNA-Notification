@@ -12,23 +12,23 @@ func TestGenerateKey(t *testing.T) {
 	priv, pub := GenerateRsaKeyPair()
 
 	// Export the keys to pem string
-	priv_pem := ExportRsaPrivateKeyAsPemStr(priv)
-	pub_pem, _ := ExportRsaPublicKeyAsPemStr(pub)
+	privPem := ExportRsaPrivateKeyAsPemStr(priv)
+	pubPem, _ := ExportRsaPublicKeyAsPemStr(pub)
 
 	// Import the keys from pem string
-	priv_parsed, _ := ParseRsaPrivateKeyFromPemStr(priv_pem)
-	pub_parsed, _ := ParseRsaPublicKeyFromPemStr(pub_pem)
+	privParsed, _ := ParseRsaPrivateKeyFromPemStr(privPem)
+	pubParsed, _ := ParseRsaPublicKeyFromPemStr(pubPem)
 
 	// Export the newly imported keys
-	priv_parsed_pem := ExportRsaPrivateKeyAsPemStr(priv_parsed)
-	pub_parsed_pem, _ := ExportRsaPublicKeyAsPemStr(pub_parsed)
+	privParsedPem := ExportRsaPrivateKeyAsPemStr(privParsed)
+	pubParsedPem, _ := ExportRsaPublicKeyAsPemStr(pubParsed)
 
-	fmt.Println(priv_parsed_pem)
-	fmt.Println(pub_parsed_pem)
+	fmt.Println(privParsedPem)
+	fmt.Println(pubParsedPem)
 
 	// Check that the exported/imported keys match the original keys
-	td.CmpFalse(t, priv_pem != priv_parsed_pem, "Failure: Export and Import did not result in same Keys")
-	td.CmpFalse(t, pub_pem != pub_parsed_pem, "Failure: Export and Import did not result in same Keys")
+	td.CmpFalse(t, privPem != privParsedPem, "Failure: Export and Import did not result in same Keys")
+	td.CmpFalse(t, pubPem != pubParsedPem, "Failure: Export and Import did not result in same Keys")
 }
 
 func TestCryptAndDecrypt(t *testing.T) {

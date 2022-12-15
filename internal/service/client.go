@@ -7,6 +7,10 @@ import (
 	"github.com/imroc/req/v3"
 )
 
+const (
+	DumpRequest = "DUMP_REQUEST"
+)
+
 var reqClient *req.Client
 
 // NewClient returns a req client. Singleton pattern is used to create the client
@@ -24,7 +28,7 @@ func NewClient() *req.Client {
 			})
 		reqClient = client
 
-		if os.Getenv("DUMP_REQUEST") == "true" {
+		if os.Getenv(DumpRequest) == "true" {
 			client.DevMode()
 		}
 	}

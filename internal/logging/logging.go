@@ -1,4 +1,4 @@
-package service
+package logging
 
 import (
 	"log"
@@ -9,11 +9,11 @@ type loggerService struct {
 	f *os.File
 }
 
-type ILoggerService interface {
+type Logger interface {
 	CloseFile()
 }
 
-func NewLoggerService() ILoggerService {
+func InitLogger() Logger {
 	f := openLogFile()
 	log.SetOutput(f)
 

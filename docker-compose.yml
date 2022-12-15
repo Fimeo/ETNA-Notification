@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   postgres:
-    image:  postgres:13-alpine
+    image: postgres:13-alpine
     networks: [ app ]
     environment:
       - POSTGRES_USER=$POSTGRES_USER
@@ -20,7 +20,7 @@ services:
       - POSTGRES_DB=$POSTGRES_DB
     volumes:
       - ./database/migrations:/migrations
-    command: ["-path", "/migrations", "-database",  "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres:5432/$POSTGRES_DB?sslmode=disable", "up"]
+    command: [ "-path", "/migrations", "-database",  "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres:5432/$POSTGRES_DB?sslmode=disable", "up" ]
     links:
       - postgres
     depends_on:
