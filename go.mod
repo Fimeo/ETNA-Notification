@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/bwmarrin/discordgo v0.26.1
-	github.com/imroc/req/v3 v3.26.3
+	github.com/imroc/req/v3 v3.26.5
 	github.com/joho/godotenv v1.4.0
 	github.com/lib/pq v1.10.7
 	github.com/maxatome/go-testdeep v1.12.0
