@@ -3,7 +3,7 @@ module etna-notification
 go 1.18
 
 require (
-	github.com/bwmarrin/discordgo v0.26.1
+	github.com/bwmarrin/discordgo v0.27.0
 	github.com/imroc/req/v3 v3.26.5
 	github.com/joho/godotenv v1.4.0
 	github.com/lib/pq v1.10.7
