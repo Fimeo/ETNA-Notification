@@ -9,7 +9,7 @@ require (
 	github.com/lib/pq v1.10.7
 	github.com/maxatome/go-testdeep v1.12.0
 	github.com/robfig/cron v1.2.0
-	go.uber.org/fx v1.18.2
+	go.uber.org/fx v1.19.1
 	gorm.io/driver/postgres v1.4.5
 	gorm.io/gorm v1.24.2
 )
@@ -42,7 +42,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.5.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
-	go.uber.org/dig v1.15.0 // indirect
+	go.uber.org/dig v1.16.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.23.0 // indirect
 	golang.org/x/crypto v0.3.0 // indirect
