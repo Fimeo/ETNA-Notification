@@ -11,7 +11,7 @@ require (
 	github.com/robfig/cron v1.2.0
 	go.uber.org/fx v1.18.2
 	gorm.io/driver/postgres v1.4.5
-	gorm.io/gorm v1.24.2
+	gorm.io/gorm v1.24.3
 )
 
 require (
