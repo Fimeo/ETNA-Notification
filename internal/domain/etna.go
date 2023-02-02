@@ -30,7 +30,7 @@ type EtnaNotificationMetas struct {
 func BuildNotificationFromEtnaNotificationAndUser(notification *EtnaNotification, user *User) *Notification {
 	return &Notification{
 		ExternalID: notification.ID,
-		User:       user,
+		UserID:     int(user.ID),
 	}
 }
 

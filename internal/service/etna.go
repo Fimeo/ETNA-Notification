@@ -63,7 +63,7 @@ func (s *etnaWebService) LoginCookie(login, password string) (*http.Cookie, erro
 
 func (s *etnaWebService) RetrieveUnreadNotifications(authenticationCookie *http.Cookie, username string) (notifications []*domain.EtnaNotification, err error) {
 	_, err = s.C.R().
-		SetResult(&notifications).
+		SetSuccessResult(&notifications).
 		SetCookies(authenticationCookie).
 		Get(fmt.Sprintf(informationURL, username))
 	if err != nil {
@@ -75,7 +75,7 @@ func (s *etnaWebService) RetrieveUnreadNotifications(authenticationCookie *http.
 
 func (s *etnaWebService) RetrieveAllNotifications(authenticationCookie *http.Cookie, username string) (notifications []*domain.EtnaNotification, err error) {
 	_, err = s.C.R().
-		SetResult(&notifications).
+		SetSuccessResult(&notifications).
 		SetCookies(authenticationCookie).
 		Get(fmt.Sprintf(informationURL, username) + "/archived")
 	if err != nil {
