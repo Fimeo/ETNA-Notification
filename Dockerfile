@@ -1,19 +1,17 @@
-FROM golang:1.18-alpine as builder
+FROM golang:1.18 AS build
 
 WORKDIR /app
 
-# Download necessary Go modules
-COPY go.mod ./
-COPY go.sum ./
+COPY . .
 RUN go mod download
 
-# Move files
-COPY cmd cmd
-COPY internal internal
-COPY .env .env
-COPY pkg pkg
+RUN CGO_ENABLED=0 go build  -o /bin/go-app -v ./cmd/main.go
 
-# Build
-RUN go build -o bin /app/cmd/main.go
+FROM scratch AS runtime
+WORKDIR /
+COPY --from=build /bin/go-app .
+COPY --from=build /app/api/* ./api/
 
-CMD [ "./bin" ]
+EXPOSE 8080
+
+ENTRYPOINT ["./go-app"]
