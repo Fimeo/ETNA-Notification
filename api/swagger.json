@@ -1,0 +1,128 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "ETNA Notification API",
+    "description": "This document provides an exhaustive list of all endpoints available on etna notification.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": ""
+    },
+    {
+      "url": "http://localhost:8080",
+      "description": "Running local dev server"
+    }
+  ],
+  "tags": [
+    {
+      "description": "Register on ETNA Notification service",
+      "name": "Register"
+    }
+  ],
+  "paths": {
+    "/register": {
+      "post": {
+        "operationId": "registerOnService",
+        "tags": [
+          "Register"
+        ],
+        "responses": {
+          "200": {
+            "description": "Discord server invitation link",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/output.link"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable entity, some validations failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/output.message"
+                }
+              }
+            }
+          }
+        },
+        "description": "Input body that contains information to validate the etna account connection and the discord username.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/input.register"
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "input.register": {
+        "type": "object",
+        "properties": {
+          "login": {
+            "type": "string",
+            "description": "firstName of user",
+            "example": "johnUser",
+            "pattern": "[a-zA-Z0-9_]",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "discordAccountName": {
+            "type": "string",
+            "description": "Discord username with discriminator",
+            "example": "Name#1234",
+            "pattern": "^[a-zA-Z0-9]+#[0-9]{4}$",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "password": {
+            "type": "string",
+            "description": "password of etna user account",
+            "example": "password",
+            "minLength": 1,
+            "maxLength": 100
+          }
+        },
+        "required": [
+          "login",
+          "discordAccountName",
+          "password"
+        ]
+      },
+      "output.link": {
+        "type": "object",
+        "properties": {
+          "invitation": {
+            "type": "string",
+            "example": "https://discord.gg/RkGNURm6"
+          }
+        },
+        "required": [
+          "invitation"
+        ]
+      },
+      "output.message": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "details"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      }
+    }
+  }
+}

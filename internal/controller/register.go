@@ -20,6 +20,7 @@ type registerController struct {
 type IRegisterController interface {
 	Register(login, password, discordAccount string) (*string, error)
 	Connect()
+	Stop()
 }
 
 func NewRegisterController(repositories repository.Repositories, services service.Service) IRegisterController {
@@ -62,10 +63,44 @@ func (c *registerController) Register(login, password, discordAccount string) (*
 // Connect register connect handler func that follow message creation in connect channel. The connect method checks
 // account creation and create a personal channel for the user to receive their notifications.
 func (c *registerController) Connect() {
-	c.DiscordService.Session().AddHandler(func(s *discordgo.Session, m *discordgo.MessageCreate) {
-		err := usecase.CreatePersonalChannel(c.UserRepository, c.DiscordService, m)
+	c.DiscordService.Session().AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		if i.ApplicationCommandData().Name != "connect" {
+			return
+		}
+		err := usecase.CreatePersonalChannel(c.UserRepository, c.DiscordService, i)
 		if err != nil {
 			usecase.SendErrorNotification(c.DiscordService, err.Error())
 		}
 	})
+
+	// Create application command in discord application
+	_, err := c.DiscordService.Session().ApplicationCommandCreate(c.DiscordService.Session().State.User.ID, "", &discordgo.ApplicationCommand{
+		Name:        "connect",
+		Description: "Link etna account to discord account",
+	})
+	if err != nil {
+		usecase.SendErrorNotification(c.DiscordService, err.Error())
+	}
+}
+
+// Stop will disable notification retrieving for user.
+func (c *registerController) Stop() {
+	c.DiscordService.Session().AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		if i.ApplicationCommandData().Name != "stop" {
+			return
+		}
+		err := usecase.StopNotifications(c.UserRepository, c.DiscordService, i)
+		if err != nil {
+			usecase.SendErrorNotification(c.DiscordService, err.Error())
+		}
+	})
+
+	// Create application command in discord application
+	_, err := c.DiscordService.Session().ApplicationCommandCreate(c.DiscordService.Session().State.User.ID, "", &discordgo.ApplicationCommand{
+		Name:        "stop",
+		Description: "Stop notification service",
+	})
+	if err != nil {
+		usecase.SendErrorNotification(c.DiscordService, err.Error())
+	}
 }

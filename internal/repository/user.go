@@ -11,8 +11,10 @@ import (
 )
 
 type IUserRepository interface {
-	Save(*domain.User) (*domain.User, error)
-	Update(user *domain.User) (*domain.User, error)
+	Create(*domain.User) (*domain.User, error)
+	UpdateStatus(user *domain.User) (*domain.User, error)
+	UpdateChannel(user *domain.User) (*domain.User, error)
+	UpdateCredentialsAndDiscord(user *domain.User) (*domain.User, error)
 	FindAll() ([]*domain.User, error)
 	FindByDiscordName(string) (*domain.User, error)
 	FindByLogin(string) (*domain.User, error)
@@ -31,10 +33,10 @@ func NewUserRepository(client database.Client, security security.Security) IUser
 	}
 }
 
-// Save hash password user rsa public key because we need to restore the password to make
+// Create hash password user rsa public key because we need to restore the password to make
 // web service authentication on etna api. This is not the most secure way, but it was the only mean
 // to store hash password and restore them later. Hash if encoded into base64 to be stored in database.
-func (ur *userRepository) Save(user *domain.User) (*domain.User, error) {
+func (ur *userRepository) Create(user *domain.User) (*domain.User, error) {
 	encryptedPassword, err := security.Encrypt([]byte(user.Password), *ur.PublicKey)
 	if err != nil {
 		return nil, err
@@ -43,8 +45,25 @@ func (ur *userRepository) Save(user *domain.User) (*domain.User, error) {
 	return user, ur.DB.Create(user).Error
 }
 
-func (ur *userRepository) Update(user *domain.User) (*domain.User, error) {
-	return user, ur.DB.Updates(user).Error
+// UpdateCredentialsAndDiscord update the user credentials and the discord account linked
+func (ur *userRepository) UpdateCredentialsAndDiscord(user *domain.User) (*domain.User, error) {
+	encryptedPassword, err := security.Encrypt([]byte(user.Password), *ur.PublicKey)
+	if err != nil {
+		return nil, err
+	}
+	user.Password = base64.StdEncoding.EncodeToString(encryptedPassword)
+
+	return user, ur.DB.Model(user).Updates(user).Error
+}
+
+// UpdateStatus updates the user status
+func (ur *userRepository) UpdateStatus(user *domain.User) (*domain.User, error) {
+	return user, ur.DB.Model(user).Update("Status", user.Status).Error
+}
+
+// UpdateChannel updates the user channel id
+func (ur *userRepository) UpdateChannel(user *domain.User) (*domain.User, error) {
+	return user, ur.DB.Model(user).Update("ChannelID", user.ChannelID).Error
 }
 
 // FindAll user retrieve all account registered to send notifications. Password are decrypted using rsa private key

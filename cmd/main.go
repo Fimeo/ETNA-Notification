@@ -6,6 +6,7 @@ import (
 	"etna-notification/internal/config"
 	"etna-notification/internal/controller"
 	"etna-notification/internal/database"
+	"etna-notification/internal/http"
 	"etna-notification/internal/logging"
 	"etna-notification/internal/repository"
 	"etna-notification/internal/service"
@@ -19,6 +20,7 @@ func main() {
 			service.InitServices,
 			repository.InitRepositories,
 			database.InitDatabaseConnection,
+			controller.InitControllers,
 		),
 		fx.Invoke(
 			config.LoadConfig,
@@ -26,5 +28,6 @@ func main() {
 			// repository.AutoMigrateModels,
 		),
 		fx.Invoke(controller.Setup),
+		fx.Invoke(http.SetupRouter),
 	).Run()
 }

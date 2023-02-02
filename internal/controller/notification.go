@@ -8,6 +8,7 @@ import (
 
 	"github.com/robfig/cron"
 
+	"etna-notification/internal/domain"
 	"etna-notification/internal/repository"
 	"etna-notification/internal/service"
 	"etna-notification/internal/usecase"
@@ -36,7 +37,7 @@ func NewEtnaNotificationController(repositories repository.Repositories, service
 
 func (c *etnaNotificationController) StartDiscordNotificationCron() {
 	cr := cron.New()
-	err := cr.AddFunc("@every 30m", func() {
+	err := cr.AddFunc("@every 1m", func() {
 		err := c.SendPushNotification()
 		if err != nil {
 			usecase.SendErrorNotification(c.DiscordService, fmt.Sprintf("[ERROR] Something goes wrong during cron push notification: %+v", err))
@@ -64,7 +65,7 @@ func (c *etnaNotificationController) SendPushNotification() error {
 	var wg sync.WaitGroup
 	// Retrieve notifications only for user that have a linked discord channel
 	for _, user := range users {
-		if user.ChannelID == "" {
+		if user.ChannelID == "" || user.Status != domain.StatusOpen {
 			continue
 		}
 		// Shadow copy

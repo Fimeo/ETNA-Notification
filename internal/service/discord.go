@@ -30,6 +30,7 @@ type IDiscordService interface {
 	ChannelNewReadingMember(memberID, channelID string) (*discordgo.Channel, error)
 	GetChannel(channelID string) (*discordgo.Channel, error)
 	CreateInvitation(channelID string) (*discordgo.Invite, error)
+	ReplyInteractiveCommand(content string, i *discordgo.InteractionCreate)
 	CloseConnection()
 }
 
@@ -143,6 +144,20 @@ func (dg *discordService) SendTextMessageReply(content string, message *discordg
 	})
 	if err != nil {
 		log.Printf("[ERROR] message reply has failed with content : %s %+v %+v", content, message, err)
+		return
+	}
+}
+
+func (dg *discordService) ReplyInteractiveCommand(content string, i *discordgo.InteractionCreate) {
+	err := dg.DG.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: content,
+		},
+	})
+
+	if err != nil {
+		log.Printf("[ERROR] message interaction reply has failed with content : %s %+v", content, err)
 		return
 	}
 }

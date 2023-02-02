@@ -45,5 +45,5 @@ func postgresConnection(username, password, host, port, database string) (*gorm.
 		return nil, err
 	}
 
-	return db, nil
+	return db.Debug(), nil
 }
