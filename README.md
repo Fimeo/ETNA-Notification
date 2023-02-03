@@ -34,13 +34,14 @@ On the application startup, a websocket connection is created between the Discor
 
 The workflow is :
 - The new ETNA student wants to receive their notifications on discord
-- First step is to register his etna account of a web page (still to do) and make the register step.
+- First step is to register his etna account of a web page https://github.com/Fimeo/ETNA-Notification-Front and make the register step.
   - Invitation link is created to join the notification server
   - The account is created in the application
   - The ETNA student join the server by the invitation link and use the `/connect` slash command
 - The slash command check the discord username and match the register one, a personal channel is created to receive their notifications.
 
 If the ETNA account password has changed, notifications retrieving cannot be performed. To renew the password, make the register step again.
+Idem if you want to change the linked discord account.
 
 Channels in the configuration defined :
 - `NOTIFICATION_CATEGORY_ID` : the category under personal channels are created
@@ -51,10 +52,7 @@ Notifications are retrieved for all registered users with a valid DiscordAccount
 Notifications are send only one time for each user on his dedicated channel.
 
 Still to do on this project :
-- The web page to register
-- Gin controller to make the register step
-- Handle the case to add the bot on multiple servers
-- `/stop` command to remove the etna account information, close the channel 
+- Handle the case to add the bot on multiple servers (remove configuration channels)
 - Save all pending notifications as notifications sent on the connect step.
 
 ### Note :
@@ -65,4 +63,3 @@ the etna school api has one day token validity. So password are rsa encrypted to
 Thanks to :
 - [DiscordGo](https://github.com/bwmarrin/discordgo)
 - [Gorm](https://github.com/go-gorm/gorm)
- 
