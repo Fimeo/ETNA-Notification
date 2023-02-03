@@ -1,8 +1,8 @@
 package service
 
 import (
-	"errors"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/imroc/req/v3"
@@ -45,11 +45,15 @@ func (s *etnaWebService) LoginCookie(login, password string) (*http.Cookie, erro
 			Password: password,
 		}).
 		Post(loginURL)
+	log.Printf("[INFO] Login response time : %s", response.TotalTime().String())
 	if err != nil {
 		return nil, err
 	}
+	if response.StatusCode == http.StatusUnauthorized {
+		return nil, fmt.Errorf("[ERROR] Wrong credentials for user : %s", login)
+	}
 	if len(response.Cookies()) == 0 {
-		return nil, errors.New("[ERROR] Connection failed, no cookie in response body")
+		return nil, fmt.Errorf("[ERROR] Connection failed, no cookie in response body, user : %s", login)
 	}
 
 	for _, cookie := range response.Cookies() {
@@ -58,14 +62,15 @@ func (s *etnaWebService) LoginCookie(login, password string) (*http.Cookie, erro
 		}
 	}
 
-	return nil, errors.New("[ERROR] Connection failed, authenticator cookie not found in response")
+	return nil, fmt.Errorf("[ERROR] Connection failed, authenticator cookie not found in response, user : %s", login)
 }
 
 func (s *etnaWebService) RetrieveUnreadNotifications(authenticationCookie *http.Cookie, username string) (notifications []*domain.EtnaNotification, err error) {
-	_, err = s.C.R().
+	response, err := s.C.R().
 		SetSuccessResult(&notifications).
 		SetCookies(authenticationCookie).
 		Get(fmt.Sprintf(informationURL, username))
+	log.Printf("[INFO] Retrieve unread notifications response time : %s", response.TotalTime().String())
 	if err != nil {
 		return nil, err
 	}
@@ -74,10 +79,11 @@ func (s *etnaWebService) RetrieveUnreadNotifications(authenticationCookie *http.
 }
 
 func (s *etnaWebService) RetrieveAllNotifications(authenticationCookie *http.Cookie, username string) (notifications []*domain.EtnaNotification, err error) {
-	_, err = s.C.R().
+	response, err := s.C.R().
 		SetSuccessResult(&notifications).
 		SetCookies(authenticationCookie).
 		Get(fmt.Sprintf(informationURL, username) + "/archived")
+	log.Printf("[INFO] Retrieve all notifications response time : %s", response.TotalTime().String())
 	if err != nil {
 		return nil, err
 	}

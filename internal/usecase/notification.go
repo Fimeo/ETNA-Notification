@@ -13,7 +13,6 @@ import (
 func RetrieveUnreadNotificationForUser(user *domain.User, webService service.IEtnaWebService) ([]*domain.EtnaNotification, error) {
 	// Perform etna web service authentication to get authenticator cookie
 	authenticationCookie, err := webService.LoginCookie(user.Login, user.Password)
-	// TODO : authentication failed count to revoke user status and send message on his personal channel
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +41,6 @@ func SendPushNotificationForUser(
 	// If notification id was not found in notifications already sent, use discord service to send a new message in the user channel.
 	for _, notification := range notifications {
 		if notified, _ := notificationRepository.IsNotified(domain.BuildNotificationFromEtnaNotificationAndUser(notification, user)); notified {
-			log.Print("[DEBUG] Notification already sent")
 			continue
 		}
 		_, err := discordService.SendTextMessage(user.ChannelID, domain.BuildMessageFromEtnaNotification(notification))

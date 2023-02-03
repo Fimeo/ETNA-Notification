@@ -20,7 +20,8 @@ func NewClient() *req.Client {
 	if reqClient == nil {
 		client := req.C(). // Use C() to create a client and set with chainable client settings.
 					SetUserAgent("etna-notification-bot").
-					SetTimeout(5 * time.Second).
+					SetTimeout(10 * time.Second).
+					EnableDebugLog().
 					SetCookieJar(nil). // Disable cookie storage between requests
 					SetCommonHeaders(map[string]string{
 				"Accept":          "application/json",
