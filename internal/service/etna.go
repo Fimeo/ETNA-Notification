@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/imroc/req/v3"
 
@@ -13,6 +14,7 @@ import (
 const (
 	loginURL       = "https://auth.etna-alternance.net/identity"
 	informationURL = "https://intra-api.etna-alternance.net/students/%s/informations"
+	eventURL       = "https://intra-api.etna-alternance.net/students/%s/events?start=%s&end=%s"
 )
 
 // etnaWebService is a service that retrieves data from etna web services.
@@ -26,6 +28,7 @@ type IEtnaWebService interface {
 	LoginCookie(login, password string) (*http.Cookie, error)
 	RetrieveUnreadNotifications(authenticationCookie *http.Cookie, username string) (notifications []*domain.EtnaNotification, err error)
 	RetrieveAllNotifications(authenticationCookie *http.Cookie, username string) (notifications []*domain.EtnaNotification, err error)
+	RetrieveCalendarEventInRange(authenticationCookie *http.Cookie, username string, start, end time.Time) (events []*domain.CalendarEvent, err error)
 }
 
 func NewEtnaWebservice(client *req.Client) IEtnaWebService {
@@ -84,6 +87,19 @@ func (s *etnaWebService) RetrieveAllNotifications(authenticationCookie *http.Coo
 		SetCookies(authenticationCookie).
 		Get(fmt.Sprintf(informationURL, username) + "/archived")
 	log.Printf("[INFO] Retrieve all notifications response time : %s", response.TotalTime().String())
+	if err != nil {
+		return nil, err
+	}
+
+	return
+}
+
+func (s *etnaWebService) RetrieveCalendarEventInRange(authenticationCookie *http.Cookie, username string, start, end time.Time) (events []*domain.CalendarEvent, err error) {
+	response, err := s.C.R().
+		SetSuccessResult(&events).
+		SetCookies(authenticationCookie).
+		Get(fmt.Sprintf(eventURL, username, start.Format("2006-01-02"), end.Format("2006-01-02")))
+	log.Printf("[INFO] Retrieve events response time : %s", response.TotalTime().String())
 	if err != nil {
 		return nil, err
 	}

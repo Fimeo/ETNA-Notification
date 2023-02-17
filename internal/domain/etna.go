@@ -27,6 +27,44 @@ type EtnaNotificationMetas struct {
 	Promo        string `json:"promo,omitempty"`
 }
 
+type CalendarEvent struct {
+	ID           int                       `json:"id"`
+	Event        int                       `json:"event"`
+	Name         string                    `json:"name"`
+	ActivityName string                    `json:"activity_name"`
+	SessionName  string                    `json:"session_name"`
+	Type         string                    `json:"type"`
+	Location     string                    `json:"location"`
+	Start        string                    `json:"start"`
+	End          string                    `json:"end"`
+	Group        CalendarEventGroup        `json:"group"`
+	Registration CalendarEventRegistration `json:"registration"`
+	UvName       string                    `json:"uv_name"`
+}
+
+type CalendarEventMember struct {
+	ID         int    `json:"id"`
+	Login      string `json:"login"`
+	Firstname  string `json:"firstname"`
+	Lastname   string `json:"lastname"`
+	Validation int    `json:"validation"`
+	Forced     int    `json:"forced"`
+}
+
+type CalendarEventRegistration struct {
+	Type   string `json:"type"`
+	Date   string `json:"date"`
+	Forced int    `json:"forced"`
+	Locked int    `json:"locked"`
+}
+
+type CalendarEventGroup struct {
+	ID         int                   `json:"id"`
+	Leader     CalendarEventMember   `json:"leader"`
+	Validation interface{}           `json:"validation"`
+	Members    []CalendarEventMember `json:"members"`
+}
+
 func BuildNotificationFromEtnaNotificationAndUser(notification *EtnaNotification, user *User) *Notification {
 	return &Notification{
 		ExternalID: notification.ID,
