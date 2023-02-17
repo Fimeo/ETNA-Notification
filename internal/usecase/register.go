@@ -110,6 +110,12 @@ func CreatePersonalChannel(userRepository repository.IUserRepository, discordSer
 			log.Printf("[ERROR] error occured during on save personal channel for user %s %s %+v", user.Login, textChannel.ID, err)
 			return fmt.Errorf("[ERROR] error occured during on save personal channel for user %s %s %w", user.Login, textChannel.ID, err)
 		}
+
+		_, err = discordService.SendTextMessage(textChannel.ID, "Hi ! This is your personal channel.\nNotifications are retrieved every 30 minutes and new ones display a notification is this channel.\nIf you want to stop this service, just use `/stop` command.")
+		if err != nil {
+			log.Printf("[ERROR] error occured when sending hello message %s %s %+v", user.Login, textChannel.ID, err)
+			return fmt.Errorf("[ERROR] error occured when sending hello message %s %s %w", user.Login, textChannel.ID, err)
+		}
 	}
 
 	// Add read role to channel

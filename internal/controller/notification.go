@@ -73,7 +73,6 @@ func (c *etnaNotificationController) SendPushNotification() error {
 
 		wg.Add(1)
 		go func() {
-			// TODO : catch error in channel list
 			err := usecase.SendPushNotificationForUser(user, c.NotificationRepository, c.EtnaWebService, c.DiscordService)
 			if err != nil {
 				// TODO : do not sent error notification if intra is down or user credentials are wrong
