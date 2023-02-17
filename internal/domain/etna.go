@@ -1,11 +1,13 @@
 package domain
 
 import (
+	"fmt"
 	"time"
 )
 
 const (
 	Notice = "notice"
+	Error  = "error"
 )
 
 type EtnaNotification struct {
@@ -28,18 +30,24 @@ type EtnaNotificationMetas struct {
 }
 
 type CalendarEvent struct {
-	ID           int                       `json:"id"`
-	Event        int                       `json:"event"`
-	Name         string                    `json:"name"`
-	ActivityName string                    `json:"activity_name"`
-	SessionName  string                    `json:"session_name"`
-	Type         string                    `json:"type"`
-	Location     string                    `json:"location"`
-	Start        string                    `json:"start"`
-	End          string                    `json:"end"`
+	ID    int    `json:"id"`
+	Event int    `json:"event"`
+	Name  string `json:"name"`
+	// The slug of calendar event
+	ActivityName string `json:"activity_name"`
+	SessionName  string `json:"session_name"`
+	// Type values: presential, suivi, soutenance
+	Type     string `json:"type"`
+	Location string `json:"location"`
+	// Start time of the calendar event
+	Start string `json:"start"`
+	// End time of the calendar event
+	End string `json:"end"`
+	// Members concerned by the event
 	Group        CalendarEventGroup        `json:"group"`
 	Registration CalendarEventRegistration `json:"registration"`
-	UvName       string                    `json:"uv_name"`
+	// UvName module name
+	UvName string `json:"uv_name"`
 }
 
 type CalendarEventMember struct {
@@ -56,6 +64,12 @@ type CalendarEventRegistration struct {
 	Date   string `json:"date"`
 	Forced int    `json:"forced"`
 	Locked int    `json:"locked"`
+}
+
+func (e CalendarEvent) BuildCalendarMessage() string {
+	return fmt.Sprintf(
+		"%s : %s. %s : %s - %s",
+		e.Name, e.ActivityName, e.Location, e.Start, e.End)
 }
 
 type CalendarEventGroup struct {
@@ -75,6 +89,8 @@ func BuildNotificationFromEtnaNotificationAndUser(notification *EtnaNotification
 func BuildMessageFromEtnaNotification(notification *EtnaNotification) string {
 	if notification.Type == Notice {
 		return ":bell: " + notification.Message
+	} else if notification.Type == Error {
+		return ":x: " + notification.Message
 	}
 	return ":pushpin: " + notification.Message
 }
