@@ -40,15 +40,15 @@ func SendPushNotificationForUser(
 
 	// If notification id was not found in notifications already sent, use discord service to send a new message in the user channel.
 	for _, notification := range notifications {
-		if notified, _ := notificationRepository.IsNotified(domain.BuildNotificationFromEtnaNotificationAndUser(notification, user)); notified {
+		if notified, _ := notificationRepository.IsNotified(notification.BuildNotification(user)); notified {
 			continue
 		}
-		_, err := discordService.SendTextMessage(user.ChannelID, domain.BuildMessageFromEtnaNotification(notification))
+		_, err := discordService.SendTextMessage(user.ChannelID, notification.BuildNotificationMessage())
 		if err != nil {
 			log.Printf("[ERROR] Error when trying to send discord notification to user %+v and notification %+v", user, notification)
 			return err
 		}
-		_, err = notificationRepository.Save(domain.BuildNotificationFromEtnaNotificationAndUser(notification, user))
+		_, err = notificationRepository.Save(notification.BuildNotification(user))
 		if err != nil {
 			return err
 		}

@@ -19,6 +19,7 @@ type etnaNotificationController struct {
 	EtnaWebService         service.IEtnaWebService
 	UserRepository         repository.IUserRepository
 	NotificationRepository repository.INotificationRepository
+	CalendarRepository     repository.ICalendarEventRepository
 }
 
 type IEtnaNotificationController interface {
@@ -32,6 +33,7 @@ func NewEtnaNotificationController(repositories repository.Repositories, service
 		EtnaWebService:         services.IEtnaWebService,
 		UserRepository:         repositories.IUserRepository,
 		NotificationRepository: repositories.INotificationRepository,
+		CalendarRepository:     repositories.ICalendarEventRepository,
 	}
 }
 
@@ -71,13 +73,21 @@ func (c *etnaNotificationController) SendPushNotification() error {
 		// Shadow copy
 		user := user
 
+		// TODO : do not send error notification if intra is down or user credentials are wrong
 		wg.Add(1)
 		go func() {
+			// Standard notifications
 			err := usecase.SendPushNotificationForUser(user, c.NotificationRepository, c.EtnaWebService, c.DiscordService)
 			if err != nil {
-				// TODO : do not sent error notification if intra is down or user credentials are wrong
 				usecase.SendErrorNotification(c.DiscordService, fmt.Sprintf("[ERROR] Something happens during cron push notification: %s", err.Error()))
 				log.Printf("[ERROR] Something happens during cron push notification: %+v", err)
+			}
+
+			// Calendar notifications
+			err = usecase.SendCalendarPushNotificationForUser(user, c.CalendarRepository, c.EtnaWebService, c.DiscordService)
+			if err != nil {
+				usecase.SendErrorNotification(c.DiscordService, fmt.Sprintf("[ERROR] Something happens during cron push calendar notification: %s", err.Error()))
+				log.Printf("[ERROR] Something happens during cron push calendar notification: %+v", err)
 			}
 			defer wg.Done()
 		}()

@@ -28,7 +28,7 @@ type IEtnaWebService interface {
 	LoginCookie(login, password string) (*http.Cookie, error)
 	RetrieveUnreadNotifications(authenticationCookie *http.Cookie, username string) (notifications []*domain.EtnaNotification, err error)
 	RetrieveAllNotifications(authenticationCookie *http.Cookie, username string) (notifications []*domain.EtnaNotification, err error)
-	RetrieveCalendarEventInRange(authenticationCookie *http.Cookie, username string, start, end time.Time) (events []*domain.CalendarEvent, err error)
+	RetrieveCalendarEventInRange(authenticationCookie *http.Cookie, username string, start, end time.Time) (events []*domain.EtnaCalendarEvent, err error)
 }
 
 func NewEtnaWebservice(client *req.Client) IEtnaWebService {
@@ -94,7 +94,7 @@ func (s *etnaWebService) RetrieveAllNotifications(authenticationCookie *http.Coo
 	return
 }
 
-func (s *etnaWebService) RetrieveCalendarEventInRange(authenticationCookie *http.Cookie, username string, start, end time.Time) (events []*domain.CalendarEvent, err error) {
+func (s *etnaWebService) RetrieveCalendarEventInRange(authenticationCookie *http.Cookie, username string, start, end time.Time) (events []*domain.EtnaCalendarEvent, err error) {
 	response, err := s.C.R().
 		SetSuccessResult(&events).
 		SetCookies(authenticationCookie).
