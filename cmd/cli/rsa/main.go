@@ -26,7 +26,7 @@ func main() {
 
 	privateFile, err := os.Create(".ssh/rsa.private")
 	if err != nil {
-		log.Fatal(err)
+		log.Panic(err)
 	}
 	defer privateFile.Close()
 

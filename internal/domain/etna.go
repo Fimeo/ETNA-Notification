@@ -2,12 +2,15 @@ package domain
 
 import (
 	"fmt"
+	"log"
 	"time"
 )
 
 const (
-	Notice = "notice"
-	Error  = "error"
+	Notice         = "notice"
+	Error          = "error"
+	TypeSuivi      = "suivi"
+	TypeSoutenance = "soutenance"
 )
 
 type EtnaNotification struct {
@@ -29,7 +32,7 @@ type EtnaNotificationMetas struct {
 	Promo        string `json:"promo,omitempty"`
 }
 
-type CalendarEvent struct {
+type EtnaCalendarEvent struct {
 	ID    int    `json:"id"`
 	Event int    `json:"event"`
 	Name  string `json:"name"`
@@ -39,18 +42,18 @@ type CalendarEvent struct {
 	// Type values: presential, suivi, soutenance
 	Type     string `json:"type"`
 	Location string `json:"location"`
-	// Start time of the calendar event
+	// Start time of the calendar event, format 2006-01-02 15:04:05
 	Start string `json:"start"`
-	// End time of the calendar event
+	// End time of the calendar event, format 2006-01-02 15:04:05
 	End string `json:"end"`
 	// Members concerned by the event
-	Group        CalendarEventGroup        `json:"group"`
-	Registration CalendarEventRegistration `json:"registration"`
+	Group        EtnaCalendarEventGroup        `json:"group"`
+	Registration EtnaCalendarEventRegistration `json:"registration"`
 	// UvName module name
 	UvName string `json:"uv_name"`
 }
 
-type CalendarEventMember struct {
+type EtnaCalendarEventMember struct {
 	ID         int    `json:"id"`
 	Login      string `json:"login"`
 	Firstname  string `json:"firstname"`
@@ -59,38 +62,70 @@ type CalendarEventMember struct {
 	Forced     int    `json:"forced"`
 }
 
-type CalendarEventRegistration struct {
+type EtnaCalendarEventRegistration struct {
 	Type   string `json:"type"`
 	Date   string `json:"date"`
 	Forced int    `json:"forced"`
 	Locked int    `json:"locked"`
 }
 
-func (e CalendarEvent) BuildCalendarMessage() string {
+type EtnaCalendarEventGroup struct {
+	ID         int                       `json:"id"`
+	Leader     EtnaCalendarEventMember   `json:"leader"`
+	Validation interface{}               `json:"validation"`
+	Members    []EtnaCalendarEventMember `json:"members"`
+}
+
+// IsNotifiable Returns true is the event type request is relevant.
+func (e EtnaCalendarEvent) IsNotifiable() bool {
+	return e.Type == TypeSuivi || e.Type == TypeSoutenance
+}
+
+// IsInNext30Minutes returns true is the event start date is between current time and current time + 30 minutes.
+func (e EtnaCalendarEvent) IsInNext30Minutes() bool {
+	eventStart, err := time.Parse("2006-01-02 15:04:05", e.Start)
+	if err != nil {
+		log.Printf("[ERROR] cannot parse input event start date : %s %s", e.Start, err)
+		return false
+	}
+	currentTime := time.Now().Format("2006-01-02 15:04:05")
+	curr, _ := time.Parse("2006-01-02 15:04:05", currentTime)
+	next30Minutes := curr.Add(30 * time.Minute)
+
+	if eventStart.After(curr) && eventStart.Before(next30Minutes) {
+		return true
+	}
+
+	return false
+}
+
+func (e EtnaCalendarEvent) BuildCalendarMessage() string {
 	return fmt.Sprintf(
-		"%s : %s. %s : %s - %s",
-		e.Name, e.ActivityName, e.Location, e.Start, e.End)
+		":date: **%s** %s : %s. %s : %s - %s",
+		e.UvName, e.Name, e.ActivityName, e.Location, e.Start, e.End)
 }
 
-type CalendarEventGroup struct {
-	ID         int                   `json:"id"`
-	Leader     CalendarEventMember   `json:"leader"`
-	Validation interface{}           `json:"validation"`
-	Members    []CalendarEventMember `json:"members"`
+func (n EtnaNotification) BuildNotificationMessage() string {
+	switch n.Type {
+	case Notice:
+		return ":bell: " + n.Message
+	case Error:
+		return ":x: " + n.Message
+	default:
+		return ":pushpin: " + n.Message
+	}
 }
 
-func BuildNotificationFromEtnaNotificationAndUser(notification *EtnaNotification, user *User) *Notification {
+func (n EtnaNotification) BuildNotification(user *User) *Notification {
 	return &Notification{
-		ExternalID: notification.ID,
+		ExternalID: n.ID,
 		UserID:     int(user.ID),
 	}
 }
 
-func BuildMessageFromEtnaNotification(notification *EtnaNotification) string {
-	if notification.Type == Notice {
-		return ":bell: " + notification.Message
-	} else if notification.Type == Error {
-		return ":x: " + notification.Message
+func (e EtnaCalendarEvent) BuildCalendarEvent(user *User) *CalendarEvent {
+	return &CalendarEvent{
+		ExternalID: e.ID,
+		UserID:     int(user.ID),
 	}
-	return ":pushpin: " + notification.Message
 }
