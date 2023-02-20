@@ -74,6 +74,7 @@ func (c *etnaNotificationController) SendPushNotification() error {
 		user := user
 
 		// TODO : do not send error notification if intra is down or user credentials are wrong
+		// TODO : split standard notification and calendar notifications.
 		wg.Add(1)
 		go func() {
 			// Standard notifications

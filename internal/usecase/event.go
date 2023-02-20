@@ -39,8 +39,9 @@ func SendCalendarPushNotificationForUser(
 	}
 
 	// If notification id was not found in notifications already sent, use discord service to send a new message in the user channel.
+	// Event is sent only one hour before the event start.
 	for _, event := range events {
-		if !event.IsNotifiable() && !event.IsInNext30Minutes() {
+		if !event.IsNotifiable() && !event.IsInNextHour() {
 			continue
 		}
 		if notified, _ := eventRepository.IsNotified(event.BuildCalendarEvent(user)); notified {

@@ -38,12 +38,12 @@ func TestIsNotifiableCalendarEvent(t *testing.T) {
 func TestEtnaCalendarEventIsInNext30Minutes(t *testing.T) {
 	now := time.Now()
 	eventStart := now.Add(15 * time.Minute)
-	td.CmpTrue(t, EtnaCalendarEvent{Start: eventStart.Format("2006-01-02 15:04:05")}.IsInNext30Minutes())
-	eventStart = eventStart.Add(14 * time.Minute)
-	td.CmpTrue(t, EtnaCalendarEvent{Start: eventStart.Format("2006-01-02 15:04:05")}.IsInNext30Minutes())
-	eventStart = eventStart.Add(2 * time.Minute)
-	td.CmpFalse(t, EtnaCalendarEvent{Start: eventStart.Format("2006-01-02 15:04:05")}.IsInNext30Minutes())
+	td.CmpTrue(t, EtnaCalendarEvent{Start: eventStart.Format("2006-01-02 15:04:05")}.IsInNextHour())
+	eventStart = eventStart.Add(30 * time.Minute)
+	td.CmpTrue(t, EtnaCalendarEvent{Start: eventStart.Format("2006-01-02 15:04:05")}.IsInNextHour())
+	eventStart = eventStart.Add(30 * time.Minute)
+	td.CmpFalse(t, EtnaCalendarEvent{Start: eventStart.Format("2006-01-02 15:04:05")}.IsInNextHour())
 
 	eventStart = now.Add(-5 * time.Minute)
-	td.CmpFalse(t, EtnaCalendarEvent{Start: eventStart.Format("2006-01-02 15:04:05")}.IsInNext30Minutes())
+	td.CmpFalse(t, EtnaCalendarEvent{Start: eventStart.Format("2006-01-02 15:04:05")}.IsInNextHour())
 }

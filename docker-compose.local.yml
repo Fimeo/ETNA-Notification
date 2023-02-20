@@ -8,6 +8,24 @@ services:
       - .env
     ports:
       - "5444:5432"
+    volumes:
+      - etna-notification-data:/var/lib/postgresql/data
+
+  migrate:
+    image: migrate/migrate
+    networks: [ app ]
+    env_file:
+      - .env
+    volumes:
+      - ./migrations:/migrations
+    command: [ "-path", "/migrations", "-database",  "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres:5432/$POSTGRES_DB?sslmode=disable", "up" ]
+    links:
+      - postgres
+    depends_on:
+      - postgres
 
 networks:
   app:
+
+volumes:
+  etna-notification-data:

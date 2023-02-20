@@ -2,6 +2,7 @@ package main
 
 import (
 	"go.uber.org/fx"
+	"log"
 
 	"etna-notification/internal/config"
 	"etna-notification/internal/controller"
@@ -30,4 +31,6 @@ func main() {
 		fx.Invoke(controller.Setup),
 		fx.Invoke(http.SetupRouter),
 	).Run()
+
+	log.Println("Application started")
 }

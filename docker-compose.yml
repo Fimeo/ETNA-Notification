@@ -15,7 +15,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./database/migrations:/migrations
+      - ./migrations:/migrations
     command: [ "-path", "/migrations", "-database",  "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres:5432/$POSTGRES_DB?sslmode=disable", "up" ]
     links:
       - postgres
