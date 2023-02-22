@@ -1,0 +1,10 @@
+# https://github.com/k1LoW/tbls
+
+# tbls doc
+
+# DSN (Database Source Name) to connect database
+dsn: postgres://postgres:postgres@localhost:5432/etna?sslmode=disable
+
+# Path to generate document
+# Default is `dbdoc`
+docPath: doc/schema
