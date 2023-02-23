@@ -78,14 +78,14 @@ func (c *etnaNotificationController) SendPushNotification() error {
 		wg.Add(1)
 		go func() {
 			// Standard notifications
-			err := usecase.SendPushNotificationForUser(user, c.NotificationRepository, c.EtnaWebService, c.DiscordService)
+			err := usecase.SendPushNotificationForUser(user, c.NotificationRepository, c.UserRepository, c.EtnaWebService, c.DiscordService)
 			if err != nil {
 				usecase.SendErrorNotification(c.DiscordService, fmt.Sprintf("[ERROR] Something happens during cron push notification: %s", err.Error()))
 				log.Printf("[ERROR] Something happens during cron push notification: %+v", err)
 			}
 
 			// Calendar notifications
-			err = usecase.SendCalendarPushNotificationForUser(user, c.CalendarRepository, c.EtnaWebService, c.DiscordService)
+			err = usecase.SendCalendarPushNotificationForUser(user, c.CalendarRepository, c.UserRepository, c.EtnaWebService, c.DiscordService)
 			if err != nil {
 				usecase.SendErrorNotification(c.DiscordService, fmt.Sprintf("[ERROR] Something happens during cron push calendar notification: %s", err.Error()))
 				log.Printf("[ERROR] Something happens during cron push calendar notification: %+v", err)

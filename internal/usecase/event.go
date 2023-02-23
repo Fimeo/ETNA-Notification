@@ -10,14 +10,18 @@ import (
 )
 
 // RetrieveCalendarEventForUser returns all calendar event for the current day
-func RetrieveCalendarEventForUser(user *domain.User, webService service.IEtnaWebService) ([]*domain.EtnaCalendarEvent, error) {
+func RetrieveCalendarEventForUser(
+	user *domain.User,
+	webService service.IEtnaWebService,
+	userRepository repository.IUserRepository,
+	discordService service.IDiscordService) ([]*domain.EtnaCalendarEvent, error) {
 	// Perform etna web service authentication to get authenticator cookie
-	authenticationCookie, err := webService.LoginCookie(user.Login, user.Password)
+	err := AuthenticateUser(user, webService, userRepository, discordService)
 	if err != nil {
 		return nil, err
 	}
 	// Retrieve unread notifications
-	calendarEvents, err := webService.RetrieveCalendarEventInRange(authenticationCookie, user.Login, time.Now(), time.Now())
+	calendarEvents, err := webService.RetrieveCalendarEventInRange(user.GetAuthentication(), user.Login, time.Now(), time.Now())
 	if err != nil {
 		return nil, err
 	}
@@ -31,9 +35,10 @@ func RetrieveCalendarEventForUser(user *domain.User, webService service.IEtnaWeb
 func SendCalendarPushNotificationForUser(
 	user *domain.User,
 	eventRepository repository.ICalendarEventRepository,
+	userRepository repository.IUserRepository,
 	etnaWebService service.IEtnaWebService,
 	discordService service.IDiscordService) error {
-	events, err := RetrieveCalendarEventForUser(user, etnaWebService)
+	events, err := RetrieveCalendarEventForUser(user, etnaWebService, userRepository, discordService)
 	if err != nil {
 		return err
 	}
