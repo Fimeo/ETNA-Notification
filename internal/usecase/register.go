@@ -31,7 +31,7 @@ func CreateServerInvitation(discordService service.IDiscordService, channelID st
 func CheckEtnaAccountValidity(etnaWebService service.IEtnaWebService, login, password string) error {
 	// Check if the etna account if valid by making authentication
 	if _, err := etnaWebService.LoginCookie(login, password); err != nil {
-		log.Printf("[DEBUG]: user have bad credentials are register : %s", login)
+		log.Printf("[ERROR]: user have bad credentials are register : %s", login)
 		return fmt.Errorf("failed to authenticate on etna web service : %w", err)
 	}
 
@@ -161,10 +161,9 @@ func StopNotifications(userRepository repository.IUserRepository, discordService
 		return nil
 	}
 
-	user.Status = domain.StatusClose
-	_, err = userRepository.UpdateStatus(user)
+	err = UserStopAccount(user, userRepository, discordService)
 	if err != nil {
-		discordService.ReplyInteractiveCommand("error occurred during stop", i)
+		discordService.ReplyInteractiveCommand("error occurred during stop notifications", i)
 		log.Printf("[ERROR] error occurred during stop user %s : %+v", discordName, err)
 		return fmt.Errorf("[ERROR] error occurred during stop user %s : %w", discordName, err)
 	}

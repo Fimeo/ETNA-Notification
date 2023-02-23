@@ -10,14 +10,18 @@ import (
 )
 
 // RetrieveUnreadNotificationForUser returns all unread notifications for the current user
-func RetrieveUnreadNotificationForUser(user *domain.User, webService service.IEtnaWebService) ([]*domain.EtnaNotification, error) {
+func RetrieveUnreadNotificationForUser(
+	user *domain.User,
+	webService service.IEtnaWebService,
+	userRepository repository.IUserRepository,
+	discordService service.IDiscordService) ([]*domain.EtnaNotification, error) {
 	// Perform etna web service authentication to get authenticator cookie
-	authenticationCookie, err := webService.LoginCookie(user.Login, user.Password)
+	err := AuthenticateUser(user, webService, userRepository, discordService)
 	if err != nil {
 		return nil, err
 	}
 	// Retrieve unread notifications
-	notifications, err := webService.RetrieveUnreadNotifications(authenticationCookie, user.Login)
+	notifications, err := webService.RetrieveUnreadNotifications(user.GetAuthentication(), user.Login)
 	if err != nil {
 		return nil, err
 	}
@@ -31,9 +35,10 @@ func RetrieveUnreadNotificationForUser(user *domain.User, webService service.IEt
 func SendPushNotificationForUser(
 	user *domain.User,
 	notificationRepository repository.INotificationRepository,
+	userRepository repository.IUserRepository,
 	etnaWebService service.IEtnaWebService,
 	discordService service.IDiscordService) error {
-	notifications, err := RetrieveUnreadNotificationForUser(user, etnaWebService)
+	notifications, err := RetrieveUnreadNotificationForUser(user, etnaWebService, userRepository, discordService)
 	if err != nil {
 		return err
 	}
