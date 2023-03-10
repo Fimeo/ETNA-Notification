@@ -75,8 +75,8 @@ func GetUserFromInteractiveCommand(i *discordgo.InteractionCreate) discordgo.Use
 	return *i.User
 }
 
-// CreatePersonalChannel
-// TODO : insert all pending notifications into database to avoid massive assignment for user with hundreds of notifications
+// CreatePersonalChannel retrieves the discord name of the user, checks if his account exists in database and creates
+// a personal discord channel.
 func CreatePersonalChannel(userRepository repository.IUserRepository, discordService service.IDiscordService, i *discordgo.InteractionCreate) error {
 	discordUser := GetUserFromInteractiveCommand(i)
 	discordName := fmt.Sprintf("%s#%s", discordUser.Username, discordUser.Discriminator)

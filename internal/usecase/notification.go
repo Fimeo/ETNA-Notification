@@ -43,6 +43,12 @@ func SendPushNotificationForUser(
 		return err
 	}
 
+	// Iterate only on last 50 notifications
+	// Avoid spamming on first call and limit database queries
+	if len(notifications) > 50 {
+		notifications = notifications[:50]
+	}
+
 	// If notification id was not found in notifications already sent, use discord service to send a new message in the user channel.
 	for _, notification := range notifications {
 		if notified, _ := notificationRepository.IsNotified(notification.BuildNotification(user)); notified {

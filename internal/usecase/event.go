@@ -7,6 +7,7 @@ import (
 	"etna-notification/internal/domain"
 	"etna-notification/internal/repository"
 	"etna-notification/internal/service"
+	"etna-notification/internal/service/utils"
 )
 
 // RetrieveCalendarEventForUser returns all calendar event for the current day
@@ -21,7 +22,8 @@ func RetrieveCalendarEventForUser(
 		return nil, err
 	}
 	// Retrieve unread notifications
-	calendarEvents, err := webService.RetrieveCalendarEventInRange(user.GetAuthentication(), user.Login, time.Now(), time.Now())
+	now := time.Now().In(utils.GetParisLocation())
+	calendarEvents, err := webService.RetrieveCalendarEventInRange(user.GetAuthentication(), user.Login, now, now)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +48,7 @@ func SendCalendarPushNotificationForUser(
 	// If notification id was not found in notifications already sent, use discord service to send a new message in the user channel.
 	// Event is sent only one hour before the event start.
 	for _, event := range events {
-		if !event.IsNotifiable() && !event.IsInNextHour() {
+		if !event.IsNotifiable() || !event.IsInNextHour() {
 			continue
 		}
 		if notified, _ := eventRepository.IsNotified(event.BuildCalendarEvent(user)); notified {
