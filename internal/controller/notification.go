@@ -3,7 +3,6 @@ package controller
 import (
 	"fmt"
 	"log"
-	"sync"
 	"time"
 
 	"github.com/robfig/cron"
@@ -65,8 +64,9 @@ func (c *etnaNotificationController) SendPushNotification() error {
 		return err
 	}
 
-	// Wait group for multithreading notifications retrieving and discord submission
-	var wg sync.WaitGroup
+	// Multithreading notifications retrieving and discord submission, works with a max goroutines in concurrency
+	poolSize := 5
+	sem := make(chan struct{}, poolSize)
 	// Retrieve notifications only for user that have a linked discord channel
 	for _, user := range users {
 		if user.ChannelID == "" || user.Status != domain.StatusOpen {
@@ -77,7 +77,7 @@ func (c *etnaNotificationController) SendPushNotification() error {
 
 		// TODO : do not send error notification if intra is down or user credentials are wrong
 		// TODO : split standard notification and calendar notifications.
-		wg.Add(1)
+		sem <- struct{}{}
 		go func() {
 			// Standard notifications
 			err := usecase.SendPushNotificationForUser(user, c.NotificationRepository, c.UserRepository, c.EtnaWebService, c.DiscordService)
@@ -92,10 +92,9 @@ func (c *etnaNotificationController) SendPushNotification() error {
 				usecase.SendErrorNotification(c.DiscordService, fmt.Sprintf("[ERROR] Something happens during cron push calendar notification: %s", err.Error()))
 				log.Printf("[ERROR] Something happens during cron push calendar notification: %+v", err)
 			}
-			defer wg.Done()
+			<-sem
 		}()
 	}
-	wg.Wait()
 	log.Print("[DEBUG] SendPushNotification end at : ", time.Now())
 	return nil
 }
