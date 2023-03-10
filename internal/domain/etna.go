@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"time"
+
+	"etna-notification/internal/service/utils"
 )
 
 const (
@@ -83,16 +85,14 @@ func (e EtnaCalendarEvent) IsNotifiable() bool {
 
 // IsInNextHour returns true is the event start date is between current time and current time + 1 hour.
 func (e EtnaCalendarEvent) IsInNextHour() bool {
-	eventStart, err := time.Parse("2006-01-02 15:04:05", e.Start)
+	eventStart, err := time.ParseInLocation("2006-01-02 15:04:05", e.Start, utils.GetParisLocation())
 	if err != nil {
 		log.Printf("[ERROR] cannot parse input event start date : %s %s", e.Start, err)
 		return false
 	}
-	currentTime := time.Now().Format("2006-01-02 15:04:05")
-	curr, _ := time.Parse("2006-01-02 15:04:05", currentTime)
-	next30Minutes := curr.Add(time.Hour)
-
-	if eventStart.After(curr) && eventStart.Before(next30Minutes) {
+	currentTime := time.Now().In(utils.GetParisLocation())
+	durationUntilStart := eventStart.Sub(currentTime)
+	if eventStart.After(currentTime) && durationUntilStart < time.Hour {
 		return true
 	}
 

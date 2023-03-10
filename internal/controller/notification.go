@@ -38,19 +38,21 @@ func NewEtnaNotificationController(repositories repository.Repositories, service
 }
 
 func (c *etnaNotificationController) StartDiscordNotificationCron() {
-	cr := cron.New()
-	err := cr.AddFunc("@every 30m", func() {
+	callback := func() {
 		err := c.SendPushNotification()
 		if err != nil {
 			usecase.SendErrorNotification(c.DiscordService, fmt.Sprintf("[ERROR] Something goes wrong during cron push notification: %+v", err))
 			log.Fatalf("[ERROR] Something goes wrong during cron push notification: %+v", err)
 			return
 		}
-	})
+	}
+	cr := cron.New()
+	err := cr.AddFunc("@every 30m", callback)
 	if err != nil {
 		log.Fatalf("[ERROR] Cannot create cron task : %+v", err)
 	}
 	cr.Start()
+	go callback()
 }
 
 // SendPushNotification retrieve all registered user with a valid etna account linked to send unread notifications

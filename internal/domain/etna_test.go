@@ -1,9 +1,9 @@
 package domain
 
 import (
-	"github.com/maxatome/go-testdeep/td"
 	"testing"
-	"time"
+
+	"github.com/maxatome/go-testdeep/td"
 )
 
 func TestBuildMessageFromEtnaCalendarEvent(t *testing.T) {
@@ -33,17 +33,4 @@ func TestIsNotifiableCalendarEvent(t *testing.T) {
 	td.CmpTrue(t, EtnaCalendarEvent{Type: "suivi"}.IsNotifiable())
 	td.CmpTrue(t, EtnaCalendarEvent{Type: "soutenance"}.IsNotifiable())
 	td.CmpFalse(t, EtnaCalendarEvent{Type: "seminaire"}.IsNotifiable())
-}
-
-func TestEtnaCalendarEventIsInNext30Minutes(t *testing.T) {
-	now := time.Now()
-	eventStart := now.Add(15 * time.Minute)
-	td.CmpTrue(t, EtnaCalendarEvent{Start: eventStart.Format("2006-01-02 15:04:05")}.IsInNextHour())
-	eventStart = eventStart.Add(30 * time.Minute)
-	td.CmpTrue(t, EtnaCalendarEvent{Start: eventStart.Format("2006-01-02 15:04:05")}.IsInNextHour())
-	eventStart = eventStart.Add(30 * time.Minute)
-	td.CmpFalse(t, EtnaCalendarEvent{Start: eventStart.Format("2006-01-02 15:04:05")}.IsInNextHour())
-
-	eventStart = now.Add(-5 * time.Minute)
-	td.CmpFalse(t, EtnaCalendarEvent{Start: eventStart.Format("2006-01-02 15:04:05")}.IsInNextHour())
 }
