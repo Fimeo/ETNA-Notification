@@ -12,8 +12,8 @@ require (
 	github.com/maxatome/go-testdeep v1.12.0
 	github.com/robfig/cron v1.2.0
 	go.uber.org/fx v1.19.2
-	gorm.io/driver/postgres v1.4.8
-	gorm.io/gorm v1.24.5
+	gorm.io/driver/postgres v1.5.0
+	gorm.io/gorm v1.24.7-0.20230306060331-85eaf9eeda11
 )
 
 require (
