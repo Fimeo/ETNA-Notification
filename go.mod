@@ -8,7 +8,7 @@ require (
 	github.com/gin-gonic/gin v1.9.0
 	github.com/imroc/req/v3 v3.33.2
 	github.com/joho/godotenv v1.5.1
-	github.com/lib/pq v1.10.7
+	github.com/lib/pq v1.10.9
 	github.com/maxatome/go-testdeep v1.13.0
 	github.com/robfig/cron v1.2.0
 	go.uber.org/fx v1.19.2
