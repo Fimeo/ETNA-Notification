@@ -13,6 +13,7 @@ const (
 	Error          = "error"
 	TypeSuivi      = "suivi"
 	TypeSoutenance = "soutenance"
+	TypeWorkShop   = "workshop"
 )
 
 type EtnaNotification struct {
@@ -35,9 +36,9 @@ type EtnaNotificationMetas struct {
 }
 
 type EtnaCalendarEvent struct {
-	ID    int    `json:"id"`
-	Event int    `json:"event"`
-	Name  string `json:"name"`
+	ID    interface{} `json:"id"`
+	Event int         `json:"event"`
+	Name  string      `json:"name"`
 	// The slug of calendar event
 	ActivityName string `json:"activity_name"`
 	SessionName  string `json:"session_name"`
@@ -80,19 +81,28 @@ type EtnaCalendarEventGroup struct {
 
 // IsNotifiable Returns true is the event type request is relevant.
 func (e EtnaCalendarEvent) IsNotifiable() bool {
-	return e.Type == TypeSuivi || e.Type == TypeSoutenance
+	return e.Type == TypeSuivi || e.Type == TypeSoutenance || e.Type == TypeWorkShop
 }
 
 // IsInNextHour returns true is the event start date is between current time and current time + 1 hour.
+// Or true if the current time is between the event start and end time.
 func (e EtnaCalendarEvent) IsInNextHour() bool {
 	eventStart, err := time.ParseInLocation("2006-01-02 15:04:05", e.Start, utils.GetParisLocation())
 	if err != nil {
 		log.Printf("[ERROR] cannot parse input event start date : %s %s", e.Start, err)
 		return false
 	}
+	eventEnd, err := time.ParseInLocation("2006-01-02 15:04:05", e.End, utils.GetParisLocation())
+	if err != nil {
+		log.Printf("[ERROR] cannot parse input event end date : %s %s", e.End, err)
+		return false
+	}
 	currentTime := time.Now().In(utils.GetParisLocation())
 	durationUntilStart := eventStart.Sub(currentTime)
 	if eventStart.After(currentTime) && durationUntilStart < time.Hour {
+		return true
+	}
+	if currentTime.After(eventStart) && currentTime.Before(eventEnd) {
 		return true
 	}
 
@@ -125,7 +135,7 @@ func (n EtnaNotification) BuildNotification(user *User) *Notification {
 
 func (e EtnaCalendarEvent) BuildCalendarEvent(user *User) *CalendarEvent {
 	return &CalendarEvent{
-		ExternalID: e.ID,
+		ExternalID: fmt.Sprintf("%v", e.ID),
 		UserID:     int(user.ID),
 	}
 }

@@ -76,10 +76,6 @@ func (s *etnaWebService) RetrieveUnreadNotifications(authenticationCookie *http.
 		SetCookies(authenticationCookie).
 		Get(fmt.Sprintf(informationURL, username))
 	log.Printf("[INFO] Retrieve unread notifications response time : %s", response.TotalTime().String())
-	if err != nil {
-		return nil, err
-	}
-
 	return
 }
 
@@ -89,10 +85,6 @@ func (s *etnaWebService) RetrieveAllNotifications(authenticationCookie *http.Coo
 		SetCookies(authenticationCookie).
 		Get(fmt.Sprintf(informationURL, username) + "/archived")
 	log.Printf("[INFO] Retrieve all notifications response time : %s", response.TotalTime().String())
-	if err != nil {
-		return nil, err
-	}
-
 	return
 }
 
@@ -102,9 +94,5 @@ func (s *etnaWebService) RetrieveCalendarEventInRange(authenticationCookie *http
 		SetCookies(authenticationCookie).
 		Get(fmt.Sprintf(eventURL, username, start.Format("2006-01-02"), end.Format("2006-01-02")))
 	log.Printf("[INFO] Retrieve events response time : %s", response.TotalTime().String())
-	if err != nil {
-		return nil, err
-	}
-
 	return
 }

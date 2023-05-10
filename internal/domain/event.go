@@ -4,7 +4,7 @@ import "gorm.io/gorm"
 
 type CalendarEvent struct {
 	gorm.Model
-	ExternalID int
+	ExternalID string
 	User       *User
 	UserID     int
 }
