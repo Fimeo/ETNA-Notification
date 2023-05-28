@@ -24,7 +24,7 @@ func AuthenticateUser(
 	// Perform etna web service authentication to get authenticator cookie
 	authenticationCookie, err := webService.LoginCookie(user.Login, user.Password)
 	if err != nil {
-		var wrongCredError *service.ErrorWrongCredentials
+		wrongCredError := &service.ErrorWrongCredentials{}
 		if errors.As(err, wrongCredError) {
 			return UserStopAccount(user, userRepository, discordService)
 		}

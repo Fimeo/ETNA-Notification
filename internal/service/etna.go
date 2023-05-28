@@ -24,7 +24,14 @@ type etnaWebService struct {
 	C *req.Client
 }
 
-type ErrorWrongCredentials error
+type ErrorWrongCredentials struct {
+	Msg string
+	Err error
+}
+
+func (e ErrorWrongCredentials) Error() string {
+	return e.Msg
+}
 
 type IEtnaWebService interface {
 	LoginCookie(login, password string) (*http.Cookie, error)
@@ -55,7 +62,7 @@ func (s *etnaWebService) LoginCookie(login, password string) (*http.Cookie, erro
 		return nil, err
 	}
 	if response.StatusCode == http.StatusUnauthorized {
-		return nil, ErrorWrongCredentials(fmt.Errorf("[ERROR] Wrong credentials for user : %s", login))
+		return nil, &ErrorWrongCredentials{Msg: fmt.Sprintf("[ERROR] Wrong credentials for user : %s", login)}
 	}
 	if len(response.Cookies()) == 0 {
 		return nil, fmt.Errorf("[ERROR] Connection failed, no cookie in response body, user : %s", login)
