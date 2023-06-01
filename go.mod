@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/bwmarrin/discordgo v0.27.1
-	github.com/getkin/kin-openapi v0.116.0
+	github.com/getkin/kin-openapi v0.117.0
 	github.com/gin-gonic/gin v1.9.0
 	github.com/imroc/req/v3 v3.34.0
 	github.com/joho/godotenv v1.5.1
