@@ -14,6 +14,9 @@ const (
 	TypeSuivi      = "suivi"
 	TypeSoutenance = "soutenance"
 	TypeWorkShop   = "workshop"
+	TypeEvenement  = "evenement"
+	TypeRush       = "rush"
+	TypePresential = "presential"
 )
 
 type EtnaNotification struct {
@@ -81,7 +84,7 @@ type EtnaCalendarEventGroup struct {
 
 // IsNotifiable Returns true is the event type request is relevant.
 func (e EtnaCalendarEvent) IsNotifiable() bool {
-	return e.Type == TypeSuivi || e.Type == TypeSoutenance || e.Type == TypeWorkShop
+	return e.Type == TypeSuivi || e.Type == TypeSoutenance || e.Type == TypeWorkShop || e.Type == TypeRush || e.Type == TypeEvenement || e.Type == TypePresential
 }
 
 // IsInNextHour returns true is the event start date is between current time and current time + 1 hour.
@@ -110,9 +113,24 @@ func (e EtnaCalendarEvent) IsInNextHour() bool {
 }
 
 func (e EtnaCalendarEvent) BuildCalendarMessage() string {
+	emote := ""
+	switch e.Type {
+	case TypePresential:
+		emote = "office"
+	case TypeRush:
+		emote = "fast_forward"
+	case TypeEvenement:
+		emote = "bookmark"
+	case TypeSoutenance:
+		emote = "loudspeaker"
+	case TypeWorkShop:
+		emote = "teacher"
+	default:
+		emote = "date"
+	}
 	return fmt.Sprintf(
-		":date: **%s** %s : %s. %s : %s - %s",
-		e.UvName, e.Name, e.ActivityName, e.Location, e.Start, e.End)
+		":%s: **%s** %s : %s. %s : %s - %s",
+		emote, e.UvName, e.Name, e.ActivityName, e.Location, e.Start, e.End)
 }
 
 func (n EtnaNotification) BuildNotificationMessage() string {
