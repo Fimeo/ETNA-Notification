@@ -36,7 +36,7 @@ func (nr *calendarEventRepository) FindAll() ([]*domain.CalendarEvent, error) {
 }
 
 func (nr *calendarEventRepository) IsNotified(event *domain.CalendarEvent) (bool, error) {
-	result := nr.DB.Take(&event, "external_id = ?", event.ExternalID)
+	result := nr.DB.Take(&event, "external_id = ? and user_id = ?", event.ExternalID, event.UserID)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return false, nil
 	}
