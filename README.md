@@ -9,6 +9,8 @@ Documentation is available here : [Documentation](https://github.com/Fimeo/ETNA-
 
 Note : this bot was made to be run on a single discord server. Channels defined is the .env configuration are server dependant.
 
+![Notification discord](notifications.png)
+
 ## Getting Started
 
 ### Prerequisites
