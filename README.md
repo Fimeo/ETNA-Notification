@@ -5,8 +5,6 @@ Retrieve and send new notification from ETNA School Intranet to Discord Channel 
 This application could manage multiples users with their own discord private channel to
 receive their notifications.
 
-Documentation is available here : [Documentation](https://github.com/Fimeo/ETNA-Notification/blob/main/doc) 
-
 Note : this bot was made to be run on a single discord server. Channels defined is the .env configuration are server dependant.
 
 ![Notification discord](notifications.png)
@@ -36,7 +34,7 @@ On the application startup, a websocket connection is created between the Discor
 
 The workflow is :
 - The new ETNA student wants to receive their notifications on discord
-- First step is to register his etna account of a web page https://github.com/Fimeo/ETNA-Notification-Front and make the register step.
+- First step is to register his etna account of a web page https://github.com/Fimeo/ETNA-Notification-Front and make the register step or using the api [Swagger](https://github.com/Fimeo/ETNA-Notification/blob/main/api/swagger.json)
   - Invitation link is created to join the notification server
   - The account is created in the application
   - The ETNA student join the server by the invitation link and use the `/connect` slash command
@@ -52,10 +50,10 @@ Channels in the configuration defined :
 
 Notifications are retrieved for all registered users with a valid DiscordAccount linked every 30 minutes.
 Notifications are send only one time for each user on his dedicated channel.
+Only the last 50 notifications are send.
 
 Still to do on this project :
 - Handle the case to add the bot on multiple servers (remove configuration channels)
-- Save all pending notifications as notifications sent on the connect step.
 
 ### Note :
 

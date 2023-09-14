@@ -1,38 +1,46 @@
-version: '3.4'
+version: "3.4"
 
 services:
-  postgres:
-    image: postgres:13-alpine
-    networks: [ app ]
-    env_file:
-      - .env
-    volumes:
-      - ./data/postgresql:/var/lib/postgresql/data
+    postgres:
+        image: postgres:13-alpine
+        networks: [ backend ]
+        env_file:
+          - .env
+        volumes:
+            - ./data/postgresql:/var/lib/postgresql/data
+        restart: always
 
-  migrate:
-    image: migrate/migrate
-    networks: [ app ]
-    env_file:
-      - .env
-    volumes:
-      - ./migrations:/migrations
-    command: [ "-path", "/migrations", "-database",  "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres:5432/$POSTGRES_DB?sslmode=disable", "up" ]
-    links:
-      - postgres
-    depends_on:
-      - postgres
+    go:
+        image: ${IMG}
+        networks: [ backend, web ]
+        volumes:
+            - ./log:/log
+            - ./.env:/.env
+            - ./.ssh:/.ssh
+        depends_on:
+            - postgres
+        env_file:
+          - .env
+        links:
+            - postgres
+        restart: always
+        labels:
+            - traefik.http.routers.${ROUTER}.rule=Host(`${HOST}`)
+            - traefik.http.routers.${ROUTER}.tls=true
+            - traefik.http.routers.${ROUTER}.tls.certresolver=lets-encrypt
 
-  app:
-    build: .
-    restart: always
-    networks: [ app ]
-    depends_on:
-      - postgres
-    links:
-      - postgres
-    env_file:
-      - .env
-    volumes:
-      - ./log:/log
+    migrate:
+        image: migrate/migrate
+        networks: [ backend ]
+        volumes:
+            - ./migrations:/migrations
+        command: ["-path", "/migrations", "-database",  "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable", "up"]
+        links:
+            - postgres
+        depends_on:
+            - postgres
+
 networks:
-  app:
+    backend:
+    web:
+        external: true
