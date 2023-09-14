@@ -2,9 +2,10 @@ package usecase
 
 import (
 	"fmt"
-	"github.com/bwmarrin/discordgo"
 	"log"
 	"time"
+
+	"github.com/bwmarrin/discordgo"
 
 	"etna-notification/internal/domain"
 	"etna-notification/internal/repository"
@@ -75,11 +76,18 @@ func GetUserFromInteractiveCommand(i *discordgo.InteractionCreate) discordgo.Use
 	return *i.User
 }
 
+func GetUserNameString(u discordgo.User) string {
+	if u.Discriminator == "0" {
+		return u.Username
+	}
+	return u.Username + "#" + u.Discriminator
+}
+
 // CreatePersonalChannel retrieves the discord name of the user, checks if his account exists in database and creates
 // a personal discord channel.
 func CreatePersonalChannel(userRepository repository.IUserRepository, discordService service.IDiscordService, i *discordgo.InteractionCreate) error {
 	discordUser := GetUserFromInteractiveCommand(i)
-	discordName := fmt.Sprintf("%s#%s", discordUser.Username, discordUser.Discriminator)
+	discordName := GetUserNameString(discordUser)
 
 	// Check if user is register in userRepository, else ask to make register step
 	user, err := userRepository.FindByDiscordName(discordName)
@@ -142,7 +150,7 @@ func CreatePersonalChannel(userRepository repository.IUserRepository, discordSer
 
 func StopNotifications(userRepository repository.IUserRepository, discordService service.IDiscordService, i *discordgo.InteractionCreate) error {
 	discordUser := GetUserFromInteractiveCommand(i)
-	discordName := fmt.Sprintf("%s#%s", discordUser.Username, discordUser.Discriminator)
+	discordName := GetUserNameString(discordUser)
 
 	// Check if user is register in userRepository, else ask to make register step
 	user, err := userRepository.FindByDiscordName(discordName)

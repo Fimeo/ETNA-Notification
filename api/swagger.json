@@ -79,11 +79,11 @@
           },
           "discordAccountName": {
             "type": "string",
-            "description": "Discord username with discriminator",
-            "example": "Name#1234",
-            "pattern": "^.{2,32}#[0-9]{4}$",
-            "minLength": 7,
-            "maxLength": 37
+            "description": "Discord global username",
+            "example": "Name",
+            "pattern": "^.{2,32}$",
+            "minLength": 2,
+            "maxLength": 32
           },
           "password": {
             "type": "string",
