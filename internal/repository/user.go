@@ -95,6 +95,15 @@ func (ur *userRepository) FindByDiscordName(discordAccountName string) (*domain.
 		}
 		return nil, errors.New("an error occurred when find user by discord name")
 	}
+	passDecode, err := base64.StdEncoding.DecodeString(user.Password)
+	if err != nil {
+		return nil, err
+	}
+	decryptPassword, err := security.Decrypt(passDecode, *ur.PrivateKey)
+	if err != nil {
+		return nil, err
+	}
+	user.Password = string(decryptPassword)
 	return user, nil
 }
 
@@ -107,6 +116,15 @@ func (ur *userRepository) FindByLogin(login string) (*domain.User, error) {
 		}
 		return nil, errors.New("an error occurred when find user by login")
 	}
+	passDecode, err := base64.StdEncoding.DecodeString(user.Password)
+	if err != nil {
+		return nil, err
+	}
+	decryptPassword, err := security.Decrypt(passDecode, *ur.PrivateKey)
+	if err != nil {
+		return nil, err
+	}
+	user.Password = string(decryptPassword)
 	return user, nil
 }
 

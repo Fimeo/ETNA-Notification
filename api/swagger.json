@@ -22,6 +22,20 @@
     }
   ],
   "paths": {
+    "/calendar": {
+      "get": {
+        "operationId": "getCalendar",
+        "tags": [
+          "Calendar"
+        ],
+        "description": "Icalendar source",
+        "responses": {
+          "200": {
+            "description": "hello"
+          }
+        }
+      }
+    },
     "/register": {
       "post": {
         "operationId": "registerOnService",

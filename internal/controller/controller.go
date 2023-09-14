@@ -8,15 +8,18 @@ import (
 type Controllers struct {
 	IRegisterController
 	IEtnaNotificationController
+	ICalendarController
 }
 
 func InitControllers(repositories repository.Repositories, services service.Service) Controllers {
 	notificationCtrl := NewEtnaNotificationController(repositories, services)
 	registerCtrl := NewRegisterController(repositories, services)
+	calendarCtrl := NewCalendarController(repositories, services)
 
 	return Controllers{
 		IRegisterController:         registerCtrl,
 		IEtnaNotificationController: notificationCtrl,
+		ICalendarController:         calendarCtrl,
 	}
 }
 

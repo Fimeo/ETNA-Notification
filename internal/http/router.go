@@ -24,6 +24,7 @@ func SetupRouter(lc fx.Lifecycle, controllers controller.Controllers) *gin.Engin
 	e.Use(middleware.Kin(middleware.NewKinValidator()))
 
 	httpcontroller.NewRegisterController(e, controllers.IRegisterController)
+	httpcontroller.NewCalendarController(e, controllers.ICalendarController)
 
 	lc.Append(fx.Hook{
 		OnStart: func(context.Context) error {

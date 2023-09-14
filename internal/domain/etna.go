@@ -112,6 +112,16 @@ func (e EtnaCalendarEvent) IsInNextHour() bool {
 	return false
 }
 
+func (e EtnaCalendarEvent) EventStartTime() time.Time {
+	eventStart, _ := time.ParseInLocation("2006-01-02 15:04:05", e.Start, utils.GetParisLocation())
+	return eventStart
+}
+
+func (e EtnaCalendarEvent) EventStopTime() time.Time {
+	eventEnd, _ := time.ParseInLocation("2006-01-02 15:04:05", e.End, utils.GetParisLocation())
+	return eventEnd
+}
+
 func (e EtnaCalendarEvent) BuildCalendarMessage() string {
 	emote := ""
 	switch e.Type {
